@@ -3,9 +3,16 @@ set -e
 
 echo "🚀 --- INVESTIGATION MODE START ---"
 
-# 1. Force environment variables for debugging
+# 1. Force environment variables
 export LOG_CHANNEL=stderr
 export APP_DEBUG=true
+
+# Check if APP_KEY is visible to the shell
+if [ -z "$APP_KEY" ]; then
+    echo "❌ ERROR: APP_KEY NOT DETECTED IN SHELL!"
+else
+    echo "✅ APP_KEY DETECTED (Prefix: ${APP_KEY:0:15}...)"
+fi
 
 # 2. Fix Port
 DEPLOY_PORT=${PORT:-8080}
@@ -18,31 +25,31 @@ mkdir -p storage/logs storage/framework/sessions storage/framework/views storage
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 4. Configure PHP-FPM Logging & Environment (MUST BE BEFORE PHP-FPM STARTS)
-echo "⚙️ Configuring PHP-FPM for debug logs..."
+# 4. Configure PHP-FPM Logging & Environment
+echo "⚙️ Configuring PHP-FPM..."
 sed -i 's/listen = .*$/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf
+sed -i '/clear_env/d' /usr/local/etc/php-fpm.d/www.conf
 echo "clear_env = no" >> /usr/local/etc/php-fpm.d/www.conf
 echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/www.conf
 echo "php_flag[display_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 echo "php_admin_value[error_log] = /proc/self/fd/2" >> /usr/local/etc/php-fpm.d/www.conf
 
-# 5. Laravel Setup
-echo "🧹 Clearing caches..."
+# 5. Manual Cache Wipe (The ultimate fix for MissingAppKeyException)
+echo "🧹 Wiping all Laravel caches manually..."
+rm -f bootstrap/cache/config.php
+rm -f bootstrap/cache/routes.php
+rm -f bootstrap/cache/services.php
+rm -f bootstrap/cache/packages.php
+
+# Clear through artisan just in case
 php artisan config:clear || true
-php artisan route:clear || true
+php artisan cache:clear || true
 
-# Check/Generate Key
-if [ -z "$APP_KEY" ]; then
-    echo "🔑 APP_KEY missing, generating a temporary one..."
-    php artisan key:generate --show --no-interaction
-fi
+# DO NOT run config:cache for now, let it read from ENV directly
+echo "⚡ Skipping config:cache for direct ENV access..."
 
-echo "⚡ Optimizing application..."
-php artisan config:cache
-php artisan route:cache
-
-# 6. Start Services (MUST BE AT THE END)
+# 6. Start Services
 echo "🐘 Starting PHP-FPM..."
 php-fpm -D
 
