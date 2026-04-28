@@ -11,10 +11,6 @@ phpunit.xml
 .editorconfig
 .eslintrc.json
 .prettierrc
-tsconfig.json
-vite.config.js
-postcss.config.js
-tailwind.config.js
 README.md
 deployment_guide.md
 implementation_plan.md
