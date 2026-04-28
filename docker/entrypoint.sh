@@ -18,9 +18,10 @@ mkdir -p storage/logs storage/framework/sessions storage/framework/views storage
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 4. Configure PHP-FPM Logging (MUST BE BEFORE PHP-FPM STARTS)
+# 4. Configure PHP-FPM Logging & Environment (MUST BE BEFORE PHP-FPM STARTS)
 echo "⚙️ Configuring PHP-FPM for debug logs..."
 sed -i 's/listen = .*$/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf
+echo "clear_env = no" >> /usr/local/etc/php-fpm.d/www.conf
 echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/www.conf
 echo "php_flag[display_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
