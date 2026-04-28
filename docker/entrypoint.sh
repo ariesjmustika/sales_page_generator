@@ -7,15 +7,15 @@ echo "🚀 --- INVESTIGATION MODE START ---"
 export LOG_CHANNEL=stderr
 export APP_DEBUG=true
 
-# Check if APP_KEY is visible to the shell
-echo "🔍 Listing all variables starting with APP_:"
-env | grep ^APP_ | cut -d= -f1 || echo "No APP_ variables found!"
+# 📋 Print ALL variable keys to see what Railway is actually sending
+echo "📋 FULL ENVIRONMENT KEYS LIST:"
+printenv | cut -d= -f1 | sort
+echo "--------------------------"
 
-if [ -z "$APP_KEY" ]; then
-    echo "❌ ERROR: APP_KEY NOT DETECTED IN SHELL!"
-else
-    echo "✅ APP_KEY DETECTED (Prefix: ${APP_KEY:0:15}...)"
-fi
+# Check specifically
+echo "🔍 Specific variable check:"
+if [ -z "$APP_KEY" ]; then echo "❌ APP_KEY: NOT_FOUND"; else echo "✅ APP_KEY: FOUND"; fi
+if [ -z "$APP_DEBUG" ]; then echo "❌ APP_DEBUG: NOT_FOUND"; else echo "✅ APP_DEBUG: FOUND"; fi
 
 # 2. Fix Port
 DEPLOY_PORT=${PORT:-8080}
