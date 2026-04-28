@@ -12,11 +12,15 @@ if [ -n "$PORT" ]; then
 fi
 
 # Fix storage permissions
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache || true
+chown -R www-data:www-data storage bootstrap/cache || true
 
-# Wait for database if needed (optional)
-# sleep 5
+# Ensure PHP-FPM listens on 127.0.0.1:9000
+sed -i 's/listen = \/.*$/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf || true
+
+# Start PHP-FPM in background
+echo "🐘 Starting PHP-FPM..."
+php-fpm -D
 
 # Clear caches
 php artisan config:clear
