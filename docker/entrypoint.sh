@@ -49,8 +49,9 @@ rm -f bootstrap/cache/packages.php
 php artisan config:clear || true
 php artisan cache:clear || true
 
-# DO NOT run config:cache for now, let it read from ENV directly
-echo "⚡ Skipping config:cache for direct ENV access..."
+# Run migrations now that DB is connected
+echo "📂 Running migrations..."
+php artisan migrate --force
 
 # 6. Start Services
 echo "🐘 Starting PHP-FPM..."
