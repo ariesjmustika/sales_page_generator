@@ -1,4 +1,5 @@
 import { Link, Head } from '@inertiajs/react';
+import Footer from '@/Components/Footer';
 import { PageProps } from '@/types';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Zap, Shield, BarChart3, Globe } from 'lucide-react';
@@ -154,6 +155,7 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                         </div>
                     </div>
                 </section>
+                <Footer />
             </div>
 
             <style dangerouslySetInnerHTML={{ __html: `

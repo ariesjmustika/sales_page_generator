@@ -5,6 +5,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 import { User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import Footer from '@/Components/Footer';
 
 export default function Authenticated({
     header,
@@ -190,6 +191,8 @@ export default function Authenticated({
             )}
 
             <main>{children}</main>
+
+            <Footer />
         </div>
     );
 }
