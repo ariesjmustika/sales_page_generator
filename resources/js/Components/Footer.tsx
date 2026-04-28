@@ -9,9 +9,14 @@ export default function Footer() {
                     <span>Built with</span>
                     <Heart className="w-4 h-4 text-red-500 fill-red-500 animate-pulse" />
                     <span>by</span>
-                    <span className="text-white hover:text-indigo-400 transition-colors cursor-default font-semibold">
+                    <a 
+                        href="https://ariesjakaradytia.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-white hover:text-indigo-400 transition-colors font-semibold"
+                    >
                         Aries Jakaradytia Mustika
-                    </span>
+                    </a>
                     <span className="text-gray-600">—</span>
                     <span className="text-gray-500">2026</span>
                 </div>
