@@ -45,10 +45,9 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Fix permissions
 RUN chmod +x /usr/local/bin/entrypoint.sh \
-    && chown -R mbdo:mbdo /var/www/html \
-    || chown -R www-data:www-data /var/www/html
+    && chown -R www-data:www-data /var/www/html
 
-# Expose port 8080
+# Expose port (will be overridden by $PORT)
 EXPOSE 8080
 
 # Run the entrypoint

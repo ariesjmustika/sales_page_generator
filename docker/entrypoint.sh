@@ -5,6 +5,16 @@ set -e
 
 echo "🚀 Starting MarketAI Deployment..."
 
+# Replace port 8080 with $PORT from Railway
+if [ -n "$PORT" ]; then
+    echo "🌍 Setting Nginx to listen on port $PORT"
+    sed -i "s/8080/$PORT/g" /etc/nginx/http.d/default.conf
+fi
+
+# Fix storage permissions
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+
 # Wait for database if needed (optional)
 # sleep 5
 
