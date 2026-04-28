@@ -8,6 +8,9 @@ export LOG_CHANNEL=stderr
 export APP_DEBUG=true
 
 # Check if APP_KEY is visible to the shell
+echo "🔍 Listing all variables starting with APP_:"
+env | grep ^APP_ | cut -d= -f1 || echo "No APP_ variables found!"
+
 if [ -z "$APP_KEY" ]; then
     echo "❌ ERROR: APP_KEY NOT DETECTED IN SHELL!"
 else
