@@ -48,8 +48,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh \
     && chown -R mbdo:mbdo /var/www/html \
     || chown -R www-data:www-data /var/www/html
 
-# Expose port 80
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
 # Run the entrypoint
 ENTRYPOINT ["entrypoint.sh"]
