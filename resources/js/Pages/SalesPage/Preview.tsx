@@ -1,13 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Download, Copy, ExternalLink, CheckCircle2, Globe, Layout, Palette, RefreshCw, Save, Edit3, Zap, Crown, Image as ImageIcon, Trash2, AlertTriangle, X } from 'lucide-react';
+import { ArrowLeft, Download, Copy, ExternalLink, CheckCircle2, Globe, Layout, Palette, RefreshCw, Save, Edit3, Zap, Crown, Image as ImageIcon, Trash2, AlertTriangle, X, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
 
 interface Props {
     salesPage: {
         id: number;
+        uuid: string;
         product_name: string;
         generated_copy: {
             headline: string;
@@ -29,6 +30,7 @@ interface Props {
 export default function Preview({ salesPage }: Props) {
     const [copy, setCopy] = useState(salesPage.generated_copy);
     const [activeTab, setActiveTab] = useState<'preview' | 'content'>('preview');
+    const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
     const [isRegenerating, setIsRegenerating] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -184,6 +186,24 @@ export default function Preview({ salesPage }: Props) {
                         >
                             <Trash2 className="w-5 h-5" />
                         </button>
+                        <button 
+                            onClick={() => {
+                                const url = `${window.location.origin}/s/${salesPage.uuid}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success('Public link copied!');
+                            }}
+                            className="flex items-center space-x-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-sm font-bold transition-all shadow-lg"
+                        >
+                            <Copy className="w-4 h-4" />
+                            <span>Share Link</span>
+                        </button>
+                        <button 
+                            onClick={() => window.print()}
+                            className="flex items-center space-x-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl text-sm font-bold transition-all shadow-lg"
+                        >
+                            <FileText className="w-4 h-4" />
+                            <span>PDF</span>
+                        </button>
                         <button onClick={downloadHtml} className="flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg"><Download className="w-4 h-4" /><span>Export Site</span></button>
                     </div>
                 </div>
@@ -221,6 +241,28 @@ export default function Preview({ salesPage }: Props) {
                                     <button onClick={() => setActiveTab('preview')} className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-all ${activeTab === 'preview' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner' : 'text-gray-500 hover:bg-white/5'}`}><Layout className="w-5 h-5" /><span className="font-bold text-sm">Visual Editor</span></button>
                                     <button onClick={() => setActiveTab('content')} className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-all ${activeTab === 'content' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner' : 'text-gray-500 hover:bg-white/5'}`}><Globe className="w-5 h-5" /><span className="font-bold text-sm">Raw Data</span></button>
                                 </div>
+                                
+                                {activeTab === 'preview' && (
+                                    <div className="mt-8 pt-8 border-t border-white/5">
+                                        <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Viewport</h3>
+                                        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
+                                            <button 
+                                                onClick={() => setViewport('desktop')}
+                                                className={`flex-1 flex items-center justify-center space-x-2 py-3 rounded-xl transition-all ${viewport === 'desktop' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                            >
+                                                <Layout className="w-4 h-4" />
+                                                <span className="text-xs font-bold">Desktop</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => setViewport('mobile')}
+                                                className={`flex-1 flex items-center justify-center space-x-2 py-3 rounded-xl transition-all ${viewport === 'mobile' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                                <span className="text-xs font-bold">Mobile</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="mt-8 pt-8 border-t border-white/5">
                                     <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Templates</h3>
                                     <div className="grid grid-cols-1 gap-2">
@@ -242,16 +284,22 @@ export default function Preview({ salesPage }: Props) {
                         <div className="lg:col-span-4">
                             <AnimatePresence mode="wait">
                                 {activeTab === 'preview' ? (
-                                    <motion.div key="preview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-white/5">
-                                        <div className="bg-gray-100 px-8 py-5 border-b border-gray-200 flex items-center space-x-6"><div className="flex space-x-2"><div className="w-3.5 h-3.5 bg-red-400 rounded-full" /><div className="w-3.5 h-3.5 bg-yellow-400 rounded-full" /><div className="w-3.5 h-3.5 bg-green-400 rounded-full" /></div><div className="bg-white px-5 py-2 rounded-xl text-[12px] text-gray-400 flex-1 flex items-center justify-between border border-gray-200"><span className="flex items-center space-x-2 font-medium tracking-tight"><Globe className="w-4 h-4 opacity-30" /><span>marketai.local/v/${salesPage.id}/${salesPage.product_name.toLowerCase().replace(/\s+/g, '-')}</span></span></div></div>
-                                        <div className={`overflow-y-auto max-h-[1200px] custom-scrollbar transition-all duration-1000 ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'bg-white text-slate-900' : salesPage.theme === 'dark_tech' ? 'bg-black text-green-400 font-mono' : salesPage.theme === 'vibrant' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
-                                            <div className="max-w-5xl mx-auto text-center space-y-16 p-24">
+                                    <motion.div 
+                                        key="preview" 
+                                        initial={{ opacity: 0, y: 10 }} 
+                                        animate={{ opacity: 1, y: 0 }} 
+                                        exit={{ opacity: 0, y: 10 }} 
+                                        className={`mx-auto transition-all duration-500 ease-in-out ${viewport === 'mobile' ? 'max-w-[420px] rounded-[3.5rem] border-[12px] border-[#1a1a24] shadow-[0_0_0_12px_rgba(255,255,255,0.05)] h-[850px]' : 'w-full rounded-[3rem] border border-white/5'}`}
+                                    >
+                                        <div className={`bg-gray-100 px-8 py-5 border-b border-gray-200 flex items-center space-x-6 ${viewport === 'mobile' ? 'hidden' : ''}`}><div className="flex space-x-2"><div className="w-3.5 h-3.5 bg-red-400 rounded-full" /><div className="w-3.5 h-3.5 bg-yellow-400 rounded-full" /><div className="w-3.5 h-3.5 bg-green-400 rounded-full" /></div><div className="bg-white px-5 py-2 rounded-xl text-[12px] text-gray-400 flex-1 flex items-center justify-between border border-gray-200"><span className="flex items-center space-x-2 font-medium tracking-tight"><Globe className="w-4 h-4 opacity-30" /><span>marketai.local/v/${salesPage.id}/${salesPage.product_name.toLowerCase().replace(/\s+/g, '-')}</span></span></div></div>
+                                        <div className={`overflow-y-auto custom-scrollbar transition-all duration-1000 ${viewport === 'mobile' ? 'h-full rounded-[2.5rem]' : 'max-h-[1200px]'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'bg-white text-slate-900' : salesPage.theme === 'dark_tech' ? 'bg-black text-green-400 font-mono' : salesPage.theme === 'vibrant' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+                                            <div className={`max-w-5xl mx-auto text-center p-24 ${viewport === 'mobile' ? 'px-6 py-12 space-y-10' : 'space-y-16'}`}>
                                                 <div className="group relative">
-                                                    <h1 contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('headline', e.currentTarget.innerText)} className={`outline-none px-4 rounded-2xl hover:bg-indigo-500/5 transition-all cursor-text leading-[1.1] ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'text-6xl font-serif text-slate-900' : salesPage.theme === 'dark_tech' ? 'text-6xl font-bold uppercase italic' : salesPage.theme === 'vibrant' ? 'text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400' : 'text-7xl font-black text-slate-900'}`}>{copy.headline}</h1>
+                                                    <h1 contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('headline', e.currentTarget.innerText)} className={`outline-none px-4 rounded-2xl hover:bg-indigo-500/5 transition-all cursor-text leading-[1.1] ${viewport === 'mobile' ? 'text-3xl' : 'text-7xl'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'font-serif text-slate-900' : salesPage.theme === 'dark_tech' ? 'font-bold uppercase italic' : salesPage.theme === 'vibrant' ? 'font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400' : 'font-black text-slate-900'}`}>{copy.headline}</h1>
                                                     <button onClick={() => handleRegenerate('headline')} className="absolute -right-12 top-0 p-3 opacity-0 group-hover:opacity-100 text-indigo-500 hover:bg-indigo-500/10 rounded-full transition-all"><RefreshCw className={`w-5 h-5 ${isRegenerating === 'headline' ? 'animate-spin' : ''}`} /></button>
                                                 </div>
                                                 <div className="group relative">
-                                                    <p contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('subheadline', e.currentTarget.innerText)} className={`outline-none px-4 rounded-2xl text-2xl max-w-3xl mx-auto transition-all cursor-text leading-relaxed ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'text-slate-500 italic' : salesPage.theme === 'dark_tech' ? 'text-green-800' : 'text-slate-400'}`}>{copy.subheadline}</p>
+                                                    <p contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('subheadline', e.currentTarget.innerText)} className={`outline-none px-4 rounded-2xl max-w-3xl mx-auto transition-all cursor-text leading-relaxed ${viewport === 'mobile' ? 'text-lg' : 'text-2xl'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'text-slate-500 italic' : salesPage.theme === 'dark_tech' ? 'text-green-800' : 'text-slate-400'}`}>{copy.subheadline}</p>
                                                     <button onClick={() => handleRegenerate('subheadline')} className="absolute -right-12 top-0 p-3 opacity-0 group-hover:opacity-100 text-indigo-500 hover:bg-indigo-500/10 rounded-full transition-all"><RefreshCw className={`w-5 h-5 ${isRegenerating === 'subheadline' ? 'animate-spin' : ''}`} /></button>
                                                 </div>
                                                 <div className="group relative w-full aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10 transform transition-all hover:scale-[1.01] bg-white/5 backdrop-blur-sm">
@@ -272,7 +320,7 @@ export default function Preview({ salesPage }: Props) {
                                                     <button contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('cta', e.currentTarget.innerText)} className={`outline-none px-12 py-6 rounded-full font-black text-xl shadow-2xl transition-all transform hover:scale-110 active:scale-95 ${salesPage.theme === 'corporate' ? 'bg-blue-900 text-white' : salesPage.theme === 'minimalist' ? 'bg-slate-900 text-white' : salesPage.theme === 'dark_tech' ? 'bg-green-500 text-black border-2 border-black' : salesPage.theme === 'vibrant' ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-fuchsia-600 text-white shadow-fuchsia-500/20' : 'bg-indigo-600 text-white'}`}>{copy.cta}</button>
                                                     <button onClick={() => handleRegenerate('cta')} className="absolute -right-12 top-1/2 -translate-y-1/2 p-3 opacity-0 group-hover:opacity-100 text-indigo-500 hover:bg-indigo-500/10 rounded-full transition-all"><RefreshCw className={`w-5 h-5 ${isRegenerating === 'cta' ? 'animate-spin' : ''}`} /></button>
                                                 </div>
-                                                <div className={`grid grid-cols-2 gap-20 text-left pt-24 border-t ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'border-slate-100' : salesPage.theme === 'dark_tech' ? 'border-green-500/20' : 'border-white/10'}`}>
+                                                <div className={`grid gap-20 text-left pt-24 border-t ${viewport === 'mobile' ? 'grid-cols-1 gap-12' : 'grid-cols-2'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'border-slate-100' : salesPage.theme === 'dark_tech' ? 'border-green-500/20' : 'border-white/10'}`}>
                                                     <div className="group relative">
                                                         <h4 className={`text-[11px] font-black uppercase tracking-[0.3em] mb-6 ${salesPage.theme === 'dark_tech' ? 'text-green-500' : 'text-red-500'}`}>The Pain Point</h4>
                                                         <p contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('problem', e.currentTarget.innerText)} className="outline-none text-2xl leading-relaxed cursor-text">{copy.problem}</p>
@@ -287,7 +335,7 @@ export default function Preview({ salesPage }: Props) {
                                                 <div className="pt-24 pb-16">
                                                     <div className={`rounded-[4rem] p-24 shadow-2xl relative overflow-hidden group transition-all ${salesPage.theme === 'minimalist' ? 'bg-slate-900 text-white' : salesPage.theme === 'corporate' ? 'bg-blue-950 text-white' : salesPage.theme === 'dark_tech' ? 'bg-black border-4 border-green-500 text-green-500' : 'bg-indigo-950 text-white shadow-indigo-500/10'}`}>
                                                         <h2 className="text-4xl font-bold mb-10">Start Your Journey</h2>
-                                                        <div contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('pricing_display', e.currentTarget.innerText)} className="text-9xl font-black mb-12 tracking-tighter outline-none cursor-text">{copy.pricing_display}</div>
+                                                        <div contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('pricing_display', e.currentTarget.innerText)} className={`font-black mb-12 tracking-tighter outline-none cursor-text ${viewport === 'mobile' ? 'text-6xl' : 'text-9xl'}`}>{copy.pricing_display}</div>
                                                         <p contentEditable suppressContentEditableWarning onBlur={(e) => handleUpdateContent('social_proof_placeholder', e.currentTarget.innerText)} className="text-xl opacity-60 mb-16 max-w-lg mx-auto outline-none cursor-text leading-relaxed">{copy.social_proof_placeholder}</p>
                                                         <button className={`px-16 py-7 rounded-full font-black text-2xl transition-all transform hover:scale-110 active:scale-95 bg-white ${salesPage.theme === 'dark_tech' ? 'text-black' : 'text-indigo-900'}`}>{copy.cta}</button>
                                                     </div>
@@ -310,7 +358,25 @@ export default function Preview({ salesPage }: Props) {
                     </div>
                 </div>
             </div>
-            <style dangerouslySetInnerHTML={{ __html: `.custom-scrollbar::-webkit-scrollbar { width: 8px; } .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 20px; }`}} />
+            <style dangerouslySetInnerHTML={{ __html: `
+                .custom-scrollbar::-webkit-scrollbar { width: 8px; } 
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } 
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 20px; }
+                
+                @media print {
+                    .no-print { display: none !important; }
+                    body { background: white !important; color: black !important; }
+                    .bg-white, .bg-slate-50 { background: white !important; }
+                    .bg-slate-950, .bg-black, .bg-indigo-950 { background: white !important; color: black !important; border: 1px solid #eee; }
+                    .text-white, .text-indigo-400, .text-green-400 { color: black !important; }
+                    button { display: none !important; }
+                    .shadow-2xl, .shadow-xl { shadow: none !important; }
+                    .rounded-[3rem], .rounded-[4rem] { border-radius: 1rem !important; }
+                    .max-h-[1200px] { max-height: none !important; overflow: visible !important; }
+                    nav, header:not(.sales-header), .lg\\:col-span-1 { display: none !important; }
+                    .lg\\:col-span-4 { width: 100% !important; margin: 0 !important; }
+                }
+            `}} />
         </AuthenticatedLayout>
     );
 }

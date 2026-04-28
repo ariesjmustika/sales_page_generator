@@ -16,6 +16,8 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/s/{uuid}', [SalesPageController::class, 'publicShow'])->name('sales-pages.public');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [SalesPageController::class, 'index'])->name('dashboard');
     Route::post('/sales-pages', [SalesPageController::class, 'store'])->name('sales-pages.store');

@@ -11,7 +11,8 @@ readonly class SalesPageData
         public string $targetAudience,
         public ?string $price = null,
         public ?string $uniqueSellingPoints = null,
-        public string $theme = 'modern'
+        public string $theme = 'modern',
+        public ?string $tone = 'professional'
     ) {}
 
     public static function fromRequest(array $data): self
@@ -23,7 +24,8 @@ readonly class SalesPageData
             targetAudience: $data['target_audience'],
             price: $data['price'] ?? null,
             uniqueSellingPoints: $data['usp'] ?? null,
-            theme: $data['theme'] ?? 'modern'
+            theme: $data['theme'] ?? 'modern',
+            tone: $data['tone'] ?? 'professional'
         );
     }
 
@@ -37,6 +39,7 @@ readonly class SalesPageData
             'price' => $this->price,
             'usp' => $this->uniqueSellingPoints,
             'theme' => $this->theme,
+            'tone' => $this->tone,
         ];
     }
 }

@@ -11,13 +11,22 @@ class SalesPage extends Model
 
     protected $fillable = [
         'user_id',
+        'uuid',
         'product_name',
         'target_audience',
         'input_data',
         'generated_copy',
         'theme',
         'status',
+        'views_count',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($salesPage) {
+            $salesPage->uuid = (string) \Illuminate\Support\Str::uuid();
+        });
+    }
 
     protected $casts = [
         'input_data' => 'array',

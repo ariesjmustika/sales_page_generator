@@ -87,30 +87,35 @@ class GeminiService implements AIServiceInterface
     {
         $features = implode(', ', $data->features);
         
-        return "You are a professional conversion copywriter. Generate a structured sales page in JSON format for the following product:
+        return <<<PROMPT
+        You are a professional conversion copywriter. Generate a structured sales page in JSON format for the following product:
         Product Name: {$data->productName}
         Description: {$data->productDescription}
         Features: {$features}
         Target Audience: {$data->targetAudience}
         Price: {$data->price}
         USP: {$data->uniqueSellingPoints}
+        Writing Tone: {$data->tone}
+        
+        IMPORTANT: Use a {$data->tone} tone throughout the copy. Make it highly engaging for the target audience.
         
         The JSON should strictly follow this structure:
         {
-            \"headline\": \"Compelling headline\",
-            \"subheadline\": \"Engaging sub-headline\",
-            \"problem\": \"Identify the user's problem\",
-            \"solution\": \"How this product solves it\",
-            \"benefits\": [\"Benefit 1\", \"Benefit 2\", \"Benefit 3\"],
-            \"features_breakdown\": [
-                {\"title\": \"Feature Title\", \"description\": \"Feature description\"}
+            "headline": "Compelling headline",
+            "subheadline": "Engaging sub-headline",
+            "problem": "Identify the user's problem",
+            "solution": "How this product solves it",
+            "benefits": ["Benefit 1", "Benefit 2", "Benefit 3"],
+            "features_breakdown": [
+                {"title": "Feature Title", "description": "Feature description"}
             ],
-            \"social_proof_placeholder\": \"A placeholder testimonial or social proof text\",
-            \"pricing_display\": \"Clear pricing information\",
-            \"cta\": \"Strong Call to Action text\",
-            \"image_keyword\": \"3-5 descriptive keywords for a hero image (e.g., 'modern tech office' or 'fresh coffee beans')\"
+            "social_proof_placeholder": "A placeholder testimonial or social proof text",
+            "pricing_display": "Clear pricing information",
+            "cta": "Strong Call to Action text",
+            "image_keyword": "3-5 descriptive keywords for a hero image (e.g., 'modern tech office' or 'fresh coffee beans')"
         }
-        Return ONLY the JSON.";
+        Return ONLY the JSON.
+        PROMPT;
     }
 
     protected function getMockResponse(SalesPageData $data): array

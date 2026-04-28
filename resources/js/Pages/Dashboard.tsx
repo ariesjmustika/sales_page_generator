@@ -3,7 +3,7 @@ import { Head, useForm, Link, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Plus, Trash2, ArrowRight, History, Package, Target, DollarSign, Star, AlertTriangle, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'sonner';
 
 interface SalesPage {
@@ -11,10 +11,21 @@ interface SalesPage {
     product_name: string;
     created_at: string;
     status: string;
+    views_count: number;
 }
 
 export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: SalesPage[] }>) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [loadingStep, setLoadingStep] = useState(0);
+    const loadingMessages = [
+        "Analyzing your product details...",
+        "Crafting high-converting headlines...",
+        "Structuring benefits using AIDA framework...",
+        "Polishing your call-to-actions...",
+        "Optimizing for maximum conversion...",
+        "Finalizing your premium sales page..."
+    ];
+
     const { data, setData, post, processing, reset } = useForm({
         product_name: '',
         target_audience: '',
@@ -22,6 +33,7 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
         features: [''],
         price: '',
         usp: '',
+        tone: 'professional',
     });
 
     const addFeature = () => setData('features', [...data.features, '']);
@@ -37,6 +49,18 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
         newFeatures[index] = value;
         setData('features', newFeatures);
     };
+
+    useEffect(() => {
+        let interval: any;
+        if (processing) {
+            interval = setInterval(() => {
+                setLoadingStep((prev) => (prev + 1) % loadingMessages.length);
+            }, 3000);
+        } else {
+            setLoadingStep(0);
+        }
+        return () => clearInterval(interval);
+    }, [processing]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -144,9 +168,25 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
                                             <input type="text" value={data.price} onChange={(e) => setData('price', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="e.g. $49/month" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center space-x-2"><Star className="w-4 h-4" /><span>USP</span></label>
-                                            <input type="text" value={data.usp} onChange={(e) => setData('usp', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" placeholder="Special sauce?" />
+                                            <label className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center space-x-2"><span>Tone</span></label>
+                                            <select 
+                                                value={data.tone} 
+                                                onChange={(e) => setData('tone', e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
+                                            >
+                                                <option value="professional" className="bg-[#1a1a24]">Professional</option>
+                                                <option value="persuasive" className="bg-[#1a1a24]">Persuasive</option>
+                                                <option value="witty" className="bg-[#1a1a24]">Witty & Fun</option>
+                                                <option value="urgent" className="bg-[#1a1a24]">Urgent/Scarcity</option>
+                                                <option value="friendly" className="bg-[#1a1a24]">Friendly</option>
+                                                <option value="minimalist" className="bg-[#1a1a24]">Minimalist</option>
+                                            </select>
                                         </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center space-x-2"><Star className="w-4 h-4" /><span>Unique Selling Point (USP)</span></label>
+                                        <textarea value={data.usp} onChange={(e) => setData('usp', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none min-h-[80px]" placeholder="What makes your product special?" />
                                     </div>
 
                                     <div className="space-y-4">
@@ -163,7 +203,21 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
 
                                     <div className="pt-6">
                                         <button type="submit" disabled={processing} className="w-full md:w-auto px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold flex items-center justify-center space-x-3 transition-all transform active:scale-[0.98] shadow-xl shadow-indigo-500/20 disabled:opacity-50">
-                                            {processing ? (<div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />) : (<><Sparkles className="w-5 h-5" /><span>Craft My Sales Page</span></>)}
+                                            {processing ? (
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    <motion.span
+                                                        key={loadingStep}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="text-sm font-medium"
+                                                    >
+                                                        {loadingMessages[loadingStep]}
+                                                    </motion.span>
+                                                </div>
+                                            ) : (
+                                                <><Sparkles className="w-5 h-5" /><span>Craft My Sales Page</span></>
+                                            )}
                                         </button>
                                     </div>
                                 </form>
@@ -187,6 +241,7 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
                                                         <h4 className="font-bold text-white group-hover:text-indigo-400 transition-colors truncate mb-1">{page.product_name}</h4>
                                                         <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-black text-gray-600">
                                                             <span>{new Date(page.created_at).toLocaleDateString()}</span>
+                                                            <span className="flex items-center space-x-1"><Target className="w-3 h-3" /><span>{page.views_count} Views</span></span>
                                                         </div>
                                                     </div>
                                                 </Link>

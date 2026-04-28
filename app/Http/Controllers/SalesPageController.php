@@ -27,6 +27,7 @@ class SalesPageController extends Controller
             'price' => 'nullable|string',
             'usp' => 'nullable|string',
             'theme' => 'nullable|string',
+            'tone' => 'nullable|string',
         ]);
 
         $dto = SalesPageData::fromRequest($validated);
@@ -100,5 +101,16 @@ class SalesPageController extends Controller
         ]);
 
         return back()->with('success', 'Content updated!');
+    }
+
+    public function publicShow(string $uuid)
+    {
+        $salesPage = SalesPage::where('uuid', $uuid)->firstOrFail();
+        
+        $salesPage->increment('views_count');
+
+        return Inertia::render('SalesPage/Public', [
+            'salesPage' => $salesPage
+        ]);
     }
 }
