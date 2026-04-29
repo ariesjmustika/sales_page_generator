@@ -17,40 +17,45 @@ class GeminiService implements AIServiceInterface
 
     protected function callGemini(string $prompt, bool $isJson = false): ?string
     {
-        if ($this->apiKey === 'MOCK_KEY') return null;
-
+        $keys = explode(',', $this->apiKey);
         $models = [
-            'gemini-2.5-flash',
             'gemini-2.0-flash',
-            'gemini-1.5-flash',
-            'gemini-pro-latest'
+            'gemini-pro-latest',
         ];
 
-        foreach ($models as $model) {
-            try {
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$this->apiKey}";
-                Log::info("Trying Gemini Model: {$model}");
-                
-                $payload = [
-                    'contents' => [['parts' => [['text' => $prompt]]]]
-                ];
+        foreach ($keys as $currentKey) {
+            $currentKey = trim($currentKey);
+            if (empty($currentKey) || $currentKey === 'MOCK_KEY') continue;
 
-                if ($isJson) {
-                    $payload['generationConfig'] = ['responseMimeType' => 'application/json'];
+            foreach ($models as $model) {
+                try {
+                    $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$currentKey}";
+                    Log::info("Trying Gemini Model: {$model} with key starting with: " . substr($currentKey, 0, 8));
+                    
+                    $payload = [
+                        'contents' => [['parts' => [['text' => $prompt]]]]
+                    ];
+
+                    if ($isJson) {
+                        $payload['generationConfig'] = ['responseMimeType' => 'application/json'];
+                    }
+
+                    $response = Http::timeout(30)->post($url, $payload);
+
+                    if ($response->successful()) {
+                        Log::info("Gemini Model Success: {$model}");
+                        $result = $response->json();
+                        return $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    } elseif ($response->status() === 429) {
+                        Log::warning("Gemini Quota Exceeded (429) for model: {$model}. Trying next model on same key...");
+                        continue; // Try next model in the SAME key
+                    } else {
+                        Log::warning("Gemini Model Failed: {$model}", ['status' => $response->status(), 'body' => $response->body()]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Gemini Connection Error: " . $e->getMessage());
+                    continue;
                 }
-
-                $response = Http::timeout(30)->post($url, $payload);
-
-                if ($response->successful()) {
-                    Log::info("Gemini Model Success: {$model}");
-                    $result = $response->json();
-                    return $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
-                } else {
-                    Log::warning("Gemini Model Failed: {$model}", ['status' => $response->status(), 'body' => $response->body()]);
-                }
-            } catch (\Exception $e) {
-                Log::error("Gemini Error with model {$model}: " . $e->getMessage());
-                continue;
             }
         }
 

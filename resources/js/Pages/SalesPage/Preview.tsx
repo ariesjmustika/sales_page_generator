@@ -222,6 +222,9 @@ export default function Preview({ salesPage }: Props) {
                 toast.success(`Text updated to ${action} version!`);
                 setToolbarPos(null);
             },
+            onError: (errors) => {
+                toast.error("AI is a bit busy right now. Please wait a minute and try again!");
+            },
             onFinish: () => {
                 setIsMagicLoading(false);
                 setSelectedSection(null);
