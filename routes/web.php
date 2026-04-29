@@ -16,20 +16,20 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/s/{uuid}', [SalesPageController::class, 'publicShow'])->name('sales-pages.public');
+Route::get('/v/{uuid}', [SalesPageController::class, 'publicShow'])->name('sales-pages.public');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [SalesPageController::class, 'index'])->name('dashboard');
     Route::post('/sales-pages', [SalesPageController::class, 'store'])->name('sales-pages.store');
-    Route::get('/sales-pages/{salesPage}', [SalesPageController::class, 'show'])->name('sales-pages.show');
-    Route::post('/sales-pages/{salesPage}/regenerate', [SalesPageController::class, 'regenerate'])->name('sales-pages.regenerate');
-    Route::post('/sales-pages/{salesPage}/theme', [SalesPageController::class, 'updateTheme'])->name('sales-pages.update-theme');
-    Route::post('/sales-pages/{salesPage}/update-copy', [SalesPageController::class, 'updateCopy'])->name('sales-pages.update-copy');
-    Route::post('/sales-pages/{salesPage}/update-settings', [SalesPageController::class, 'updateSettings'])->name('sales-pages.update-settings');
-    Route::post('/sales-pages/{salesPage}/image-style', [SalesPageController::class, 'updateImageStyle'])->name('sales-pages.image-style');
-    Route::post('/sales-pages/{salesPage}/regenerate-image', [SalesPageController::class, 'regenerateImage'])->name('sales-pages.regenerate-image');
-    Route::post('/sales-pages/{salesPage}/magic-rewrite', [SalesPageController::class, 'magicRewrite'])->name('sales-pages.magic-rewrite');
-    Route::delete('/sales-pages/{salesPage}', [SalesPageController::class, 'destroy'])->name('sales-pages.destroy');
+    Route::get('/sales-pages/{salesPage:uuid}', [SalesPageController::class, 'show'])->name('sales-pages.show');
+    Route::post('/sales-pages/{salesPage:uuid}/regenerate', [SalesPageController::class, 'regenerate'])->name('sales-pages.regenerate');
+    Route::post('/sales-pages/{salesPage:uuid}/theme', [SalesPageController::class, 'updateTheme'])->name('sales-pages.update-theme');
+    Route::post('/sales-pages/{salesPage:uuid}/update-copy', [SalesPageController::class, 'updateCopy'])->name('sales-pages.update-copy');
+    Route::post('/sales-pages/{salesPage:uuid}/update-settings', [SalesPageController::class, 'updateSettings'])->name('sales-pages.update-settings');
+    Route::post('/sales-pages/{salesPage:uuid}/image-style', [SalesPageController::class, 'updateImageStyle'])->name('sales-pages.image-style');
+    Route::post('/sales-pages/{salesPage:uuid}/regenerate-image', [SalesPageController::class, 'regenerateImage'])->name('sales-pages.regenerate-image');
+    Route::post('/sales-pages/{salesPage:uuid}/magic-rewrite', [SalesPageController::class, 'magicRewrite'])->name('sales-pages.magic-rewrite');
+    Route::delete('/sales-pages/{salesPage:uuid}', [SalesPageController::class, 'destroy'])->name('sales-pages.destroy');
 });
 
 Route::middleware('auth')->group(function () {

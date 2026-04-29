@@ -8,6 +8,7 @@ import { Toaster, toast } from 'sonner';
 
 interface SalesPage {
     id: number;
+    uuid: string;
     product_name: string;
     created_at: string;
     status: string;
@@ -15,7 +16,7 @@ interface SalesPage {
 }
 
 export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: SalesPage[] }>) {
-    const [deleteId, setDeleteId] = useState<number | null>(null);
+    const [deleteUuid, setDeleteUuid] = useState<string | null>(null);
     const [loadingStep, setLoadingStep] = useState(0);
     const loadingMessages = [
         "Analyzing your product details...",
@@ -73,11 +74,11 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
     };
 
     const handleDelete = () => {
-        if (!deleteId) return;
-        router.delete(route('sales-pages.destroy', deleteId), {
+        if (!deleteUuid) return;
+        router.delete(route('sales-pages.destroy', deleteUuid), {
             onSuccess: () => {
                 toast.success('Page deleted successfully');
-                setDeleteId(null);
+                setDeleteUuid(null);
             },
         });
     };
@@ -91,13 +92,13 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
 
             {/* Custom Delete Modal */}
             <AnimatePresence>
-                {deleteId && (
+                {deleteUuid && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            onClick={() => setDeleteId(null)}
+                            onClick={() => setDeleteUuid(null)}
                             className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
                         />
                         <motion.div 
@@ -113,7 +114,7 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
                             <p className="text-gray-400 text-center mb-8">This action cannot be undone. All AI-generated content for this page will be lost forever.</p>
                             <div className="flex space-x-3">
                                 <button 
-                                    onClick={() => setDeleteId(null)}
+                                    onClick={() => setDeleteUuid(null)}
                                     className="flex-1 px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold transition-all"
                                 >
                                     Cancel
@@ -133,6 +134,28 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
             <div className="py-12 bg-[#0a0a0c] min-h-screen">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
                     
+                    {/* AI System Status */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col md:flex-row items-center justify-between p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-[2rem] backdrop-blur-xl mb-4"
+                    >
+                        <div className="flex items-center space-x-4 mb-4 md:mb-0">
+                            <div className="relative">
+                                <div className="w-3 h-3 bg-green-500 rounded-full animate-ping absolute inset-0" />
+                                <div className="w-3 h-3 bg-green-500 rounded-full relative" />
+                            </div>
+                            <div>
+                                <h4 className="text-sm font-bold text-white tracking-tight">AI Multi-Model Engine: <span className="text-green-400">Operational</span></h4>
+                                <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Primary: Gemini 2.5 Flash • Secondary: Gemini 2.0 Flash</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-2 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                            <Sparkles className="w-3 h-3 text-indigo-400" />
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Auto-Failover Discovery Active</span>
+                        </div>
+                    </motion.div>
+
                     {/* Stats Overview */}
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
@@ -265,7 +288,7 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
                                     {salesPages.length === 0 ? (<div className="text-center py-10"><p className="text-gray-600 text-sm italic">No pages generated yet.</p></div>) : (
                                         salesPages.map((page) => (
                                             <div key={page.id} className="relative group">
-                                                <Link href={route('sales-pages.show', page.id)} className="block">
+                                                <Link href={route('sales-pages.show', page.uuid)} className="block">
                                                     <div className="p-5 bg-white/5 border border-white/5 rounded-2xl group-hover:bg-white/10 group-hover:border-white/10 transition-all pr-12">
                                                         <h4 className="font-bold text-white group-hover:text-indigo-400 transition-colors truncate mb-1">{page.product_name}</h4>
                                                         <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-black text-gray-600">
@@ -277,7 +300,7 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
                                                 <button 
                                                     onClick={(e) => {
                                                         e.preventDefault();
-                                                        setDeleteId(page.id);
+                                                        setDeleteUuid(page.uuid);
                                                     }}
                                                     className="absolute right-3 top-1/2 -translate-y-1/2 p-2 opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-500 transition-all"
                                                 >

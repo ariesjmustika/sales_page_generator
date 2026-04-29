@@ -24,6 +24,11 @@ class SalesPage extends Model
         'settings',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     protected static function booted()
     {
         static::creating(function ($salesPage) {
