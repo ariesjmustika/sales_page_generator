@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Trash2, ArrowRight, History, Package, Target, DollarSign, Star, AlertTriangle, X } from 'lucide-react';
+import { Sparkles, Plus, Trash2, ArrowRight, History, Package, Target, DollarSign, Star, AlertTriangle, X, Zap } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'sonner';
 
@@ -132,6 +132,35 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
 
             <div className="py-12 bg-[#0a0a0c] min-h-screen">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+                    
+                    {/* Stats Overview */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+                    >
+                        <StatsCard 
+                            icon={<Package className="w-5 h-5 text-indigo-400" />} 
+                            label="Total Projects" 
+                            value={salesPages.length} 
+                        />
+                        <StatsCard 
+                            icon={<Target className="w-5 h-5 text-green-400" />} 
+                            label="Total Views" 
+                            value={salesPages.reduce((acc, p) => acc + (p.views_count || 0), 0)} 
+                        />
+                        <StatsCard 
+                            icon={<Zap className="w-5 h-5 text-yellow-400" />} 
+                            label="AI Generations" 
+                            value={salesPages.length * 4} 
+                        />
+                        <StatsCard 
+                            icon={<Star className="w-5 h-5 text-purple-400" />} 
+                            label="Conversion Score" 
+                            value="A+" 
+                        />
+                    </motion.div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Form Section */}
                         <div className="lg:col-span-2">
@@ -264,5 +293,19 @@ export default function Dashboard({ auth, salesPages }: PageProps<{ salesPages: 
                 </div>
             </div>
         </AuthenticatedLayout>
+    );
+}
+
+function StatsCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) {
+    return (
+        <div className="bg-[#121217] border border-white/10 rounded-3xl p-6 flex items-center space-x-4 hover:border-indigo-500/30 transition-all group">
+            <div className="p-3 bg-white/5 rounded-2xl group-hover:scale-110 transition-transform">
+                {icon}
+            </div>
+            <div>
+                <div className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{label}</div>
+                <div className="text-2xl font-black text-white">{value}</div>
+            </div>
+        </div>
     );
 }

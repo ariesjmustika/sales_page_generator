@@ -2,7 +2,8 @@ import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Mail, Lock, LogIn, Sparkles } from 'lucide-react';
 
 export default function Login({
     status,
@@ -33,6 +34,35 @@ export default function Login({
                 <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
                 <p className="text-gray-400 text-sm">Sign in to your MarketAI account</p>
             </div>
+
+            {/* Demo Access Box */}
+            <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl mb-8 group cursor-pointer hover:bg-indigo-500/20 transition-all"
+                onClick={() => {
+                    setData({
+                        ...data,
+                        email: 'demo@marketai.com',
+                        password: 'demo123456'
+                    });
+                }}
+            >
+                <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2 text-indigo-400">
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Recruiter Demo Access</span>
+                    </div>
+                    <span className="text-[10px] text-indigo-500 font-bold group-hover:underline">Click to Auto-fill</span>
+                </div>
+                <div className="flex justify-between items-end">
+                    <div>
+                        <div className="text-sm font-bold text-white">demo@marketai.com</div>
+                        <div className="text-[10px] text-gray-500 font-mono tracking-widest">demo123456</div>
+                    </div>
+                    <LogIn className="w-4 h-4 text-indigo-500/50 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+                </div>
+            </motion.div>
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-500">

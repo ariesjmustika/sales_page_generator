@@ -1,85 +1,70 @@
-# MarketAI: Professional AI Sales Page Generator 🚀
+# MarketAI 🚀 - The Next-Gen AI Sales Page Builder
 
-**MarketAI** is a production-ready SaaS application that transforms raw product/service information into high-conversion, structured sales pages. Powered by Gemini AI for copywriting and Pollinations AI for visual generation, it offers a seamless "What You See Is What You Get" experience for entrepreneurs and marketers.
-
-![MarketAI Dashboard](https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80)
+MarketAI is a high-performance visual editor and AI copywriting engine designed to transform product ideas into high-converting sales pages in seconds. Built with a focus on elite UX and robust AI architecture.
 
 ## 🌟 Key Features
 
-- **AI-Driven Copywriting**: Leverages Gemini AI to generate persuasive headlines, subheadlines, and sales copy based on minimal product data.
-- **Magic AI Images**: Automatically generates relevant hero imagery using a custom AI Visual Engine (Pollinations.ai) with smart category fallbacks.
-- **Visual Builder**: Edit your sales page in real-time with an inline `contentEditable` editor.
-- **Section-by-Section Regeneration**: Not happy with a specific headline or CTA? Regenerate individual sections with a single click.
-- **5 Premium Themes**: Instantly switch between Modern SaaS, Corporate Elite, Vibrant Pulse, Dark Tech, and Minimalist Luxury styles.
-- **Standalone Export**: Download your generated sales page as a production-ready HTML/CSS file.
-- **Complete History**: Manage, edit, and delete past generations with a sleek Framer Motion-powered dashboard.
+- **Dual-Engine AI (Gemini 2.5 & 2.0)**: Implementing a sophisticated multi-model failover strategy. If one model is unavailable, the system automatically discovers and switches to the next available high-performance model.
+- **Magic Rewrite Toolbar**: Real-time AI content manipulation. Highlight any text to instantly shorten, expand, or rewrite it with a specific conversion tone (Persuasive, Professional, Witty).
+- **Modular Visual Builder**: A "What You See Is What You Get" editor with rich text support, section management (FAQ & Testimonials), and live mobile/desktop viewport switching.
+- **WhatsApp Lead Capture**: Seamlessly integrate WhatsApp Business as a primary CTA, complete with automated custom messages per project.
+- **Dynamic Theme Engine**: Switch between multiple premium themes (Dark Tech, Vibrant, Corporate, Minimalist) with a single click.
+- **One-Click HTML Export**: Export fully functional, standalone sales pages ready for production hosting.
 
-## 🛠️ Tech Stack
+## 🛠️ Technical Stack
 
-- **Backend**: Laravel 11 (PHP)
-- **Frontend**: React (TypeScript), Inertia.js
-- **Styling**: Tailwind CSS
-- **Animations**: Framer Motion, Lucide React (Icons)
-- **AI Models**: 
-  - Google Gemini AI (Text Generation)
-  - Pollinations AI (Visual Generation)
-- **Database**: MySQL/PostgreSQL
+- **Backend**: Laravel 11 (PHP 8.2+)
+- **Frontend**: React 18 with Inertia.js (Modern Monolith Architecture)
+- **AI Integration**: Google Gemini API (with custom Failover Logic)
+- **Styling**: TailwindCSS & Framer Motion (for premium micro-animations)
+- **Icons**: Lucide React
+- **Database**: PostgreSQL / MySQL
 
-## 🚀 Getting Started
+## 🧠 Architecture Highlights
 
-### Prerequisites
-- PHP 8.2+
-- Node.js 18+
-- Composer
-- A Google Gemini API Key
+### AI Multi-Model Failover Logic
+To ensure 100% uptime, MarketAI doesn't rely on a single AI model. The `GeminiService` implements a discovery loop that iterates through:
+1. `gemini-2.5-flash` (Cutting-edge speed & reasoning)
+2. `gemini-2.0-flash` (High performance)
+3. `gemini-1.5-flash` (Stable fallback)
+4. `gemini-pro-latest` (Pro reasoning)
 
-### Installation
+This ensures that even during API outages or model deprecations, the user experience remains uninterrupted.
 
-1. **Clone the repository**
+### Data Persistence Pattern
+Uses a safe DTO (Data Transfer Object) pattern for handling AI responses and manual edits, ensuring that generated copy is safely merged and validated before being persisted to the JSON-column in the database.
+
+## 🚀 Quick Start & Demo
+
+### Online Demo
+[Link to your production site here]
+
+### Local Setup
+
+#### ⚡ Quick Start (Recommended)
+If you are on Windows, simply run:
+```bash
+./setup.bat
+```
+This will automatically install dependencies, run migrations, and seed the demo account.
+
+#### 🛠️ Manual Installation
+1. Clone the repository.
+2. Run `composer install` and `npm install`.
+3. Configure your `.env` with a `GEMINI_API_KEY` and database credentials.
+4. Run migrations with seeders:
    ```bash
-   git clone https://github.com/your-username/market-ai.git
-   cd market-ai
+   php artisan migrate --seed
    ```
-
-2. **Install Dependencies**
+5. Build assets and start the server:
    ```bash
-   composer install
-   npm install
-   ```
-
-3. **Environment Setup**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and add your database credentials and Gemini API Key:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-
-4. **Database & Migrations**
-   ```bash
-   php artisan key:generate
-   php artisan migrate
-   ```
-
-5. **Run Development Server**
-   ```bash
+   npm run build
    php artisan serve
-   # In another terminal
-   npm run dev
    ```
 
-## 🎨 Design Themes
-
-MarketAI comes with 5 curated themes to match any brand identity:
-- **Modern SaaS**: Clean, Indigo-focused professional look.
-- **Corporate Elite**: Serious, Slate-toned serif typography for enterprise.
-- **Vibrant Pulse**: High-energy gradients and bold fonts.
-- **Dark Tech**: Matrix-style neon green and black aesthetic.
-- **Minimalist Luxury**: Simple, high-end white-space focused design.
-
-## 📝 License
-Distributed under the MIT License.
+### 🔑 Demo Credentials
+- **Email**: `demo@marketai.com`
+- **Password**: `demo123456`
 
 ---
-Built with ❤️ by Aries Jakaradytia Mustika - 2026
+Developed with ❤️ for the Modern Marketer.

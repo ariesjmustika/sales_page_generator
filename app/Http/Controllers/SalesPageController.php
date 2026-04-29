@@ -66,6 +66,8 @@ class SalesPageController extends Controller
         }
 
         $section = $request->input('section');
+        \Illuminate\Support\Facades\Log::info("Regenerate Request Received", ['section' => $section, 'page_id' => $salesPage->id]);
+        
         $dto = SalesPageData::fromRequest($salesPage->input_data);
 
         $updatedCopy = $aiService->regenerateSection($dto, $section, $salesPage->generated_copy);
@@ -103,6 +105,19 @@ class SalesPageController extends Controller
         return back()->with('success', 'Content updated!');
     }
 
+    public function updateSettings(Request $request, SalesPage $salesPage)
+    {
+        if ($salesPage->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $salesPage->update([
+            'settings' => $request->input('settings')
+        ]);
+
+        return back()->with('success', 'Settings updated!');
+    }
+
     public function publicShow(string $uuid)
     {
         $salesPage = SalesPage::where('uuid', $uuid)->firstOrFail();
@@ -112,5 +127,47 @@ class SalesPageController extends Controller
         return Inertia::render('SalesPage/Public', [
             'salesPage' => $salesPage
         ]);
+    }
+
+    public function updateImageStyle(Request $request, SalesPage $salesPage)
+    {
+        if ($salesPage->user_id !== auth()->id()) abort(403);
+
+        $salesPage->update([
+            'image_style' => $request->input('image_style')
+        ]);
+
+        return back()->with('success', 'Image style updated!');
+    }
+
+    public function regenerateImage(Request $request, SalesPage $salesPage)
+    {
+        if ($salesPage->user_id !== auth()->id()) abort(403);
+
+        $salesPage->update([
+            'image_seed' => rand(1, 999999)
+        ]);
+
+        return back()->with('success', 'Image regenerated!');
+    }
+
+    public function magicRewrite(Request $request, SalesPage $salesPage, \App\Services\AI\AIServiceInterface $aiService)
+    {
+        if ($salesPage->user_id !== auth()->id()) abort(403);
+
+        $text = $request->input('text');
+        $action = $request->input('action');
+        $section = $request->input('section');
+
+        $rewrittenText = $aiService->magicRewrite($text, $action);
+
+        $copy = $salesPage->generated_copy;
+        $copy[$section] = $rewrittenText;
+
+        $salesPage->update([
+            'generated_copy' => $copy
+        ]);
+
+        return back()->with('success', 'Rewritten successfully!');
     }
 }

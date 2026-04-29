@@ -25,6 +25,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sales-pages/{salesPage}/regenerate', [SalesPageController::class, 'regenerate'])->name('sales-pages.regenerate');
     Route::post('/sales-pages/{salesPage}/theme', [SalesPageController::class, 'updateTheme'])->name('sales-pages.update-theme');
     Route::post('/sales-pages/{salesPage}/update-copy', [SalesPageController::class, 'updateCopy'])->name('sales-pages.update-copy');
+    Route::post('/sales-pages/{salesPage}/update-settings', [SalesPageController::class, 'updateSettings'])->name('sales-pages.update-settings');
+    Route::post('/sales-pages/{salesPage}/image-style', [SalesPageController::class, 'updateImageStyle'])->name('sales-pages.image-style');
+    Route::post('/sales-pages/{salesPage}/regenerate-image', [SalesPageController::class, 'regenerateImage'])->name('sales-pages.regenerate-image');
+    Route::post('/sales-pages/{salesPage}/magic-rewrite', [SalesPageController::class, 'magicRewrite'])->name('sales-pages.magic-rewrite');
     Route::delete('/sales-pages/{salesPage}', [SalesPageController::class, 'destroy'])->name('sales-pages.destroy');
 });
 

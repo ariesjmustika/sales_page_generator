@@ -18,4 +18,9 @@ interface AIServiceInterface
      * Regenerate a specific section of the sales page.
      */
     public function regenerateSection(SalesPageData $data, string $section, array $currentCopy): array;
+
+    /**
+     * Rewrite a specific piece of text based on an action.
+     */
+    public function magicRewrite(string $text, string $action): string;
 }

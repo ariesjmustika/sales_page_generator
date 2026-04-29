@@ -2,46 +2,46 @@ import { Link, Head } from '@inertiajs/react';
 import Footer from '@/Components/Footer';
 import { PageProps } from '@/types';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowRight, Zap, Shield, BarChart3, Globe } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap, Shield, BarChart3, Globe, MessageSquare, Edit3, Layout, Palette, HelpCircle, Smartphone } from 'lucide-react';
 
 export default function Welcome({ auth }: PageProps<{ laravelVersion: string, phpVersion: string }>) {
     return (
         <>
             <Head title="MarketAI - High-Conversion Sales Pages in Seconds" />
             
-            <div className="bg-[#0a0a0c] text-white min-h-screen overflow-hidden selection:bg-indigo-500/30">
+            <div className="bg-[#0a0a0c] text-white min-h-screen overflow-hidden selection:bg-indigo-500/30 font-sans">
                 {/* Background Blobs */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] overflow-hidden pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[80%] bg-indigo-600/20 blur-[120px] rounded-full" />
-                    <div className="absolute top-[10%] right-[-10%] w-[40%] h-[80%] bg-purple-600/20 blur-[120px] rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[800px] overflow-hidden pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-20%] w-[50%] h-[100%] bg-indigo-600/10 blur-[140px] rounded-full animate-pulse" />
+                    <div className="absolute top-[10%] right-[-20%] w-[50%] h-[100%] bg-fuchsia-600/10 blur-[140px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
                 </div>
 
                 {/* Navbar */}
-                <nav className="relative z-50 flex items-center justify-between px-6 py-8 max-w-7xl mx-auto">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                            <span className="text-white font-bold text-2xl">M</span>
+                <nav className="relative z-50 flex items-center justify-between px-8 py-10 max-w-7xl mx-auto">
+                    <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-fuchsia-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 rotate-3 group-hover:rotate-0 transition-transform cursor-pointer">
+                            <Zap className="text-white w-6 h-6" />
                         </div>
-                        <span className="text-2xl font-bold tracking-tight">MarketAI</span>
+                        <span className="text-3xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">MarketAI</span>
                     </div>
-                    <div className="flex items-center space-x-6">
+                    <div className="flex items-center space-x-8">
                         {auth.user ? (
                             <Link
                                 href={route('dashboard')}
-                                className="px-6 py-2.5 bg-white/5 border border-white/10 rounded-full font-medium hover:bg-white/10 transition-all"
+                                className="px-8 py-3 bg-white/5 border border-white/10 rounded-full font-bold hover:bg-white/10 hover:border-indigo-500/50 transition-all backdrop-blur-md"
                             >
                                 Dashboard
                             </Link>
                         ) : (
                             <>
-                                <Link href={route('login')} className="text-gray-400 hover:text-white transition-colors font-medium">
-                                    Login
+                                <Link href={route('login')} className="text-gray-400 hover:text-white transition-colors font-bold tracking-tight">
+                                    Sign In
                                 </Link>
                                 <Link
                                     href={route('register')}
-                                    className="px-6 py-2.5 bg-indigo-600 rounded-full font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
+                                    className="px-8 py-3 bg-indigo-600 rounded-full font-black hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
                                 >
-                                    Get Started Free
+                                    Get Started
                                 </Link>
                             </>
                         )}
@@ -49,112 +49,101 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                 </nav>
 
                 {/* Hero Section */}
-                <main className="relative z-10 pt-20 pb-32 px-6 max-w-7xl mx-auto text-center">
+                <main className="relative z-10 pt-24 pb-32 px-6 max-w-7xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="inline-flex items-center space-x-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8"
+                        className="inline-flex items-center space-x-3 px-6 py-2.5 bg-white/5 border border-white/10 rounded-full mb-12 backdrop-blur-xl"
                     >
-                        <Sparkles className="w-4 h-4 text-indigo-400" />
-                        <span className="text-sm font-medium text-indigo-200 tracking-wide">AI-Powered Sales Page Generator</span>
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
+                        <span className="text-sm font-black text-indigo-300 uppercase tracking-[0.2em]">Next-Gen AI Generation Active</span>
                     </motion.div>
 
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-6xl md:text-8xl font-black mb-8 leading-[1.1] tracking-tight"
+                        transition={{ delay: 0.1 }}
+                        className="text-7xl md:text-[7rem] font-black mb-10 leading-[1] tracking-tighter"
                     >
-                        Convert Visitors Into <br />
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 animate-gradient-x">
-                            Customers Instantly
+                        Build Sales Funnels <br />
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400 animate-gradient-x">
+                            With Pure Magic.
                         </span>
                     </motion.h1>
 
                     <motion.p 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed"
+                        transition={{ delay: 0.2 }}
+                        className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-16 leading-relaxed font-medium"
                     >
-                        The ultimate AI tool for marketers and entrepreneurs. Build high-converting sales pages in seconds, not weeks.
+                        Transform simple product ideas into high-converting sales pages in seconds. Powered by Gemini AI and crafted for elite performance.
                     </motion.p>
 
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6"
+                        transition={{ delay: 0.3 }}
+                        className="flex flex-col sm:flex-row items-center justify-center space-y-5 sm:space-y-0 sm:space-x-8 mb-32"
                     >
                         <Link
                             href={route('register')}
-                            className="w-full sm:w-auto px-10 py-4 bg-indigo-600 rounded-full text-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center space-x-2 group"
+                            className="w-full sm:w-auto px-12 py-5 bg-white text-black rounded-full text-2xl font-black hover:scale-110 transition-all flex items-center justify-center space-x-3 shadow-2xl shadow-white/10"
                         >
-                            <span>Start Building Now</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            <span>Try MarketAI Free</span>
+                            <ArrowRight className="w-6 h-6" />
                         </Link>
-                        <button className="w-full sm:w-auto px-10 py-4 bg-white/5 border border-white/10 rounded-full text-xl font-bold hover:bg-white/10 transition-all">
-                            View Examples
+                        <button className="w-full sm:w-auto px-12 py-5 bg-white/5 border border-white/10 rounded-full text-2xl font-black hover:bg-white/10 transition-all backdrop-blur-md">
+                            Live Demo
                         </button>
                     </motion.div>
 
-                    {/* Dashboard Preview Mockup */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 40 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="mt-24 relative"
-                    >
-                        <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full" />
-                        <div className="relative p-2 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden shadow-2xl">
-                            <div className="bg-[#121217] rounded-[2rem] p-4 aspect-[16/9] overflow-hidden border border-white/10">
-                                {/* Mock UI Elements */}
-                                <div className="w-full h-full bg-[#0a0a0c] rounded-2xl p-8 flex flex-col items-start text-left space-y-6">
-                                    <div className="flex space-x-2">
-                                        <div className="w-3 h-3 bg-red-500/50 rounded-full" />
-                                        <div className="w-3 h-3 bg-yellow-500/50 rounded-full" />
-                                        <div className="w-3 h-3 bg-green-500/50 rounded-full" />
-                                    </div>
-                                    <div className="w-1/3 h-8 bg-white/5 rounded-lg animate-pulse" />
-                                    <div className="w-full grid grid-cols-2 gap-4">
-                                        <div className="h-32 bg-white/5 rounded-xl animate-pulse" />
-                                        <div className="h-32 bg-indigo-500/10 rounded-xl animate-pulse border border-indigo-500/20" />
-                                    </div>
-                                    <div className="w-full h-40 bg-white/5 rounded-xl animate-pulse" />
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </main>
+                    {/* Features Matrix */}
+                    <div className="grid md:grid-cols-3 gap-8 text-left">
+                        <FeatureBlock 
+                            icon={<Zap className="w-8 h-8 text-indigo-400" />}
+                            title="Dual-Engine AI"
+                            description="Powered by Gemini 2.5 & 2.0 with auto-fallback. Reliability meets world-class copywriting."
+                        />
+                        <FeatureBlock 
+                            icon={<Edit3 className="w-8 h-8 text-fuchsia-400" />}
+                            title="Magic Rewrite"
+                            description="Highlight any text and let our AI expand, shorten, or change its tone to be more persuasive instantly."
+                        />
+                        <FeatureBlock 
+                            icon={<MessageSquare className="w-8 h-8 text-green-400" />}
+                            title="WA Integration"
+                            description="One-click lead capture. Convert visitors directly to WhatsApp with automated custom messages."
+                        />
+                        <FeatureBlock 
+                            icon={<Palette className="w-8 h-8 text-yellow-400" />}
+                            title="Theme Engine"
+                            description="Switch between Modern, Dark Tech, and Minimalist styles instantly. Every theme is conversion-optimized."
+                        />
+                        <FeatureBlock 
+                            icon={<Layout className="w-8 h-8 text-blue-400" />}
+                            title="Visual Builder"
+                            description="What you see is what you get. Edit copy, manage sections, and preview mobile layouts in one view."
+                        />
+                        <FeatureBlock 
+                            icon={<HelpCircle className="w-8 h-8 text-orange-400" />}
+                            title="Smart Sections"
+                            description="Instantly generate FAQ and Testimonial blocks with AI to boost social proof and trust."
+                        />
+                    </div>
 
-                {/* Features Section */}
-                <section className="relative z-10 py-32 px-6 bg-white/5 border-t border-white/5">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="text-center mb-20">
-                            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Built for Performance</h2>
-                            <p className="text-xl text-gray-400">Everything you need to scale your conversions with AI.</p>
-                        </div>
-                        
-                        <div className="grid md:grid-cols-3 gap-12">
-                            <FeatureCard 
-                                icon={<Zap className="w-6 h-6 text-yellow-400" />}
-                                title="Instant Generation"
-                                description="Get a complete sales page including copy and structure in under 30 seconds."
-                            />
-                            <FeatureCard 
-                                icon={<BarChart3 className="w-6 h-6 text-indigo-400" />}
-                                title="Conversion Focused"
-                                description="AI trained on world-class copywriting frameworks like AIDA and PAS."
-                            />
-                            <FeatureCard 
-                                icon={<Globe className="w-6 h-6 text-green-400" />}
-                                title="One-Click Export"
-                                description="Download your page as a standalone HTML file ready to host anywhere."
-                            />
+                    {/* Tech Stack Badge */}
+                    <div className="mt-40 pt-20 border-t border-white/5 flex flex-col items-center">
+                        <span className="text-gray-500 font-black uppercase tracking-[0.4em] text-xs mb-10">Powering The Future With</span>
+                        <div className="flex flex-wrap items-center justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
+                            <div className="flex items-center space-x-3 font-bold text-2xl"><img src="https://laravel.com/img/logomark.min.svg" className="w-8" /> <span>Laravel</span></div>
+                            <div className="flex items-center space-x-3 font-bold text-2xl"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" className="w-10" /> <span>React</span></div>
+                            <div className="flex items-center space-x-3 font-bold text-2xl"><Sparkles className="text-indigo-400" /> <span>Gemini AI</span></div>
+                            <div className="flex items-center space-x-3 font-bold text-2xl"><Smartphone className="text-fuchsia-400" /> <span>Responsive</span></div>
                         </div>
                     </div>
-                </section>
+                </main>
+
                 <Footer />
             </div>
 
@@ -173,14 +162,14 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
     );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function FeatureBlock({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
     return (
-        <div className="p-8 bg-white/5 border border-white/10 rounded-3xl hover:bg-white/10 hover:border-indigo-500/30 transition-all group">
-            <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+        <div className="p-10 bg-white/[0.03] border border-white/5 rounded-[3rem] hover:bg-white/[0.06] hover:border-indigo-500/30 transition-all group backdrop-blur-sm">
+            <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
                 {icon}
             </div>
-            <h3 className="text-2xl font-bold mb-4">{title}</h3>
-            <p className="text-gray-400 leading-relaxed">{description}</p>
+            <h3 className="text-3xl font-black mb-4 tracking-tighter">{title}</h3>
+            <p className="text-gray-400 leading-relaxed font-medium">{description}</p>
         </div>
     );
 }
