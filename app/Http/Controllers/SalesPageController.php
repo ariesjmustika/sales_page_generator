@@ -162,7 +162,9 @@ class SalesPageController extends Controller
         $rewrittenText = $aiService->magicRewrite($text, $action);
 
         $copy = $salesPage->generated_copy;
-        $copy[$section] = $rewrittenText;
+        
+        // Use Laravel's data_set to handle dot notation (e.g. "benefits.0")
+        data_set($copy, $section, $rewrittenText);
 
         $salesPage->update([
             'generated_copy' => $copy

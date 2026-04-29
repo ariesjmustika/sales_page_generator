@@ -182,12 +182,12 @@ class GeminiService implements AIServiceInterface
     protected function getMockRewrite(string $text, string $action): string
     {
         return match($action) {
-            'shorten' => (strlen($text) > 30 ? substr($text, 0, 30) . "..." : $text) . " (Optimized)",
-            'expand' => $text . ". This solution is specifically engineered to provide maximum value.",
-            'professional' => "Elevate your experience with our " . strtolower($text),
-            'persuasive' => "Don't miss out on the " . strtolower($text),
-            'witty' => "Legend says that " . strtolower($text) . " is the secret to happiness!",
-            'fix_grammar' => ucfirst(strtolower(trim($text))),
+            'shorten' => (strlen($text) > 100 ? substr($text, 0, 100) : $text),
+            'expand' => $text . " with additional professional details for better conversion.",
+            'professional' => "Highly professional and polished: " . $text,
+            'persuasive' => "Compelling and persuasive: " . $text,
+            'witty' => "Smart and engaging: " . $text,
+            'fix_grammar' => ucfirst(trim($text)),
             default => $text
         };
     }

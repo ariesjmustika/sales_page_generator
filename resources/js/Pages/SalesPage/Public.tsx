@@ -91,9 +91,9 @@ export default function Public({ salesPage }: Props) {
                     <span className="font-bold tracking-tight">MarketAI</span>
                 </div>
 
-                <h1 className={`outline-none px-2 md:px-4 rounded-2xl leading-[1.1] ${isCorporate || isMinimal ? 'text-4xl md:text-7xl font-serif text-slate-900' : isDarkTech ? 'text-4xl md:text-7xl font-bold uppercase italic' : isVibrant ? 'text-5xl md:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400' : 'text-5xl md:text-8xl font-black text-slate-900'}`} dangerouslySetInnerHTML={{ __html: copy.headline }} />
+                <h1 className={`outline-none px-2 md:px-4 rounded-2xl leading-[1.1] tracking-tight ${isCorporate || isMinimal ? 'text-4xl md:text-7xl font-serif text-slate-900' : isDarkTech ? 'text-4xl md:text-7xl font-black uppercase italic text-green-400' : isVibrant ? 'text-5xl md:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400' : 'text-5xl md:text-8xl font-black text-slate-900'}`} dangerouslySetInnerHTML={{ __html: copy.headline }} />
 
-                <p className={`text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed ${isCorporate || isMinimal ? 'text-slate-500 italic' : isDarkTech ? 'text-green-800' : 'text-slate-400'}`} dangerouslySetInnerHTML={{ __html: copy.subheadline }} />
+                <p className={`text-lg md:text-2xl max-w-3xl mx-auto leading-relaxed ${isCorporate || isMinimal ? 'text-slate-600 font-medium italic' : isDarkTech ? 'text-green-500/90 font-mono' : 'text-slate-600 font-medium'}`} dangerouslySetInnerHTML={{ __html: copy.subheadline }} />
 
                 <div className="w-full aspect-video rounded-2xl md:rounded-[3rem] overflow-hidden shadow-2xl border-2 md:border-4 border-white/10 relative group">
                     <img 

@@ -87,8 +87,16 @@ export default function Preview({ salesPage }: Props) {
         setCopy(salesPage.generated_copy);
     }, [salesPage.generated_copy]);
 
-    const handleUpdateContent = (key: string, value: string | string[]) => {
-        const newCopy = { ...copy, [key]: value };
+    const handleUpdateContent = (path: string, value: any) => {
+        const newCopy = JSON.parse(JSON.stringify(copy));
+        const parts = path.split('.');
+        let current = newCopy;
+        
+        for (let i = 0; i < parts.length - 1; i++) {
+            current = current[parts[i]];
+        }
+        current[parts[parts.length - 1]] = value;
+        
         setCopy(newCopy);
         saveManualEdit(newCopy);
     };
@@ -197,7 +205,18 @@ export default function Preview({ salesPage }: Props) {
                 // Manually force DOM update for contentEditable to avoid React's update-bailout
                 if (selectedSection) {
                     const el = document.querySelector(`[data-section="${selectedSection}"]`);
-                    if (el) (el as HTMLElement).innerHTML = newCopy[selectedSection];
+                    if (el) {
+                        // Resolve value from potentially nested key path (e.g. "benefits.0")
+                        let val = newCopy;
+                        const parts = selectedSection.split('.');
+                        for (const part of parts) {
+                            val = val?.[part];
+                        }
+                        if (typeof val === 'string') {
+                            // Update both DOM and force a re-render
+                            (el as HTMLElement).innerText = val;
+                        }
+                    }
                 }
 
                 toast.success(`Text updated to ${action} version!`);
@@ -210,10 +229,21 @@ export default function Preview({ salesPage }: Props) {
         });
     };
 
-    const handleBlur = (section: string, html: string) => {
-        // Only block auto-save if AI is actually processing to prevent race conditions
-        if (isMagicLoading) return; 
-        handleUpdateContent(section, html);
+    const handleBlur = (section: string, text: string) => {
+        // Prevent manual save if AI is processing or if the toolbar is open (to avoid race conditions)
+        if (isMagicLoading || toolbarPos) return; 
+        
+        // Resolve current value from potentially nested key path for comparison
+        let currentVal = copy;
+        const parts = section.split('.');
+        for (const part of parts) {
+            currentVal = currentVal?.[part];
+        }
+
+        const cleanText = text.trim();
+        if (cleanText === currentVal) return; // No change, no save
+        
+        handleUpdateContent(section, cleanText);
     };
 
     const handleUpdateImageKeyword = (keyword: string) => {
@@ -723,11 +753,11 @@ export default function Preview({ salesPage }: Props) {
                                         <div className={`overflow-y-auto custom-scrollbar transition-all duration-1000 ${viewport === 'mobile' ? 'h-full rounded-[2.5rem]' : 'max-h-[1200px]'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'bg-white text-slate-900' : salesPage.theme === 'dark_tech' ? 'bg-black text-green-400 font-mono' : salesPage.theme === 'vibrant' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
                                             <div className={`max-w-5xl mx-auto text-center p-24 ${viewport === 'mobile' ? 'px-6 py-12 space-y-10' : 'space-y-16'}`}>
                                                 <div className="group relative">
-                                                    <h1 data-section="headline" onClick={(e) => handleTextClick(e, 'headline')} contentEditable suppressContentEditableWarning onBlur={(e) => handleBlur('headline', e.currentTarget.innerHTML)} className={`outline-none px-4 rounded-2xl hover:bg-indigo-500/5 transition-all cursor-text leading-[1.1] ${isMagicLoading && selectedSection === 'headline' ? 'animate-pulse-shimmer' : ''} ${viewport === 'mobile' ? 'text-3xl' : 'text-7xl'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'font-serif text-slate-900' : salesPage.theme === 'dark_tech' ? 'font-bold uppercase italic' : salesPage.theme === 'vibrant' ? 'font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400' : 'font-black text-slate-900'}`} dangerouslySetInnerHTML={{ __html: copy.headline }} />
+                                                    <h1 data-section="headline" onClick={(e) => handleTextClick(e, 'headline')} contentEditable suppressContentEditableWarning onBlur={(e) => handleBlur('headline', e.currentTarget.innerHTML)} className={`outline-none px-4 rounded-2xl hover:bg-indigo-500/5 transition-all cursor-text leading-[1.1] tracking-tight ${isMagicLoading && selectedSection === 'headline' ? 'animate-pulse-shimmer' : ''} ${viewport === 'mobile' ? 'text-3xl' : 'text-7xl'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'font-serif text-slate-900' : salesPage.theme === 'dark_tech' ? 'font-black uppercase italic text-green-400' : salesPage.theme === 'vibrant' ? 'font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-indigo-400' : 'font-black text-slate-900'}`} dangerouslySetInnerHTML={{ __html: copy.headline }} />
                                                     <button onClick={() => handleRegenerate('headline')} className="absolute -right-12 top-0 p-3 opacity-0 group-hover:opacity-100 text-indigo-500 hover:bg-indigo-500/10 rounded-full transition-all"><RefreshCw className={`w-5 h-5 ${isRegenerating === 'headline' ? 'animate-spin' : ''}`} /></button>
                                                 </div>
                                                 <div className="group relative">
-                                                    <p data-section="subheadline" onClick={(e) => handleTextClick(e, 'subheadline')} contentEditable suppressContentEditableWarning onBlur={(e) => handleBlur('subheadline', e.currentTarget.innerHTML)} className={`outline-none px-4 rounded-2xl max-w-3xl mx-auto transition-all cursor-text leading-relaxed ${isMagicLoading && selectedSection === 'subheadline' ? 'animate-pulse-shimmer' : ''} ${viewport === 'mobile' ? 'text-lg' : 'text-2xl'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'text-slate-500 italic' : salesPage.theme === 'dark_tech' ? 'text-green-800' : 'text-slate-400'}`} dangerouslySetInnerHTML={{ __html: copy.subheadline }} />
+                                                    <p data-section="subheadline" onClick={(e) => handleTextClick(e, 'subheadline')} contentEditable suppressContentEditableWarning onBlur={(e) => handleBlur('subheadline', e.currentTarget.innerHTML)} className={`outline-none px-4 rounded-2xl max-w-3xl mx-auto transition-all cursor-text leading-relaxed ${isMagicLoading && selectedSection === 'subheadline' ? 'animate-pulse-shimmer' : ''} ${viewport === 'mobile' ? 'text-lg' : 'text-2xl'} ${salesPage.theme === 'corporate' || salesPage.theme === 'minimalist' ? 'text-slate-600 font-medium italic' : salesPage.theme === 'dark_tech' ? 'text-green-500/90 font-mono' : 'text-slate-600 font-medium'}`} dangerouslySetInnerHTML={{ __html: copy.subheadline }} />
                                                     <button onClick={() => handleRegenerate('subheadline')} className="absolute -right-12 top-0 p-3 opacity-0 group-hover:opacity-100 text-indigo-500 hover:bg-indigo-500/10 rounded-full transition-all"><RefreshCw className={`w-5 h-5 ${isRegenerating === 'subheadline' ? 'animate-spin' : ''}`} /></button>
                                                 </div>
                                                 <div className="group relative w-full aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10 transform transition-all hover:scale-[1.01] bg-white/5 backdrop-blur-sm">
@@ -830,14 +860,12 @@ export default function Preview({ salesPage }: Props) {
                                                                 <div className="space-y-3">
                                                                     <h4 className="text-xl md:text-2xl font-black tracking-tight">{benefit.split(' ').slice(0, 3).join(' ')}</h4>
                                                                     <p 
+                                                                        data-section={`benefits.${i}`}
                                                                         contentEditable 
                                                                         suppressContentEditableWarning 
-                                                                        onBlur={(e) => {
-                                                                            const newBenefits = [...copy.benefits];
-                                                                            newBenefits[i] = e.currentTarget.innerText;
-                                                                            handleUpdateContent('benefits', newBenefits);
-                                                                        }}
-                                                                        className="opacity-60 leading-relaxed text-base md:text-lg outline-none cursor-text"
+                                                                        onBlur={(e) => handleBlur(`benefits.${i}`, e.currentTarget.innerText)}
+                                                                        onClick={(e) => handleTextClick(e, `benefits.${i}`)}
+                                                                        className={`opacity-60 leading-relaxed text-base md:text-lg outline-none cursor-text hover:bg-indigo-500/5 rounded-xl transition-all ${isMagicLoading && selectedSection === `benefits.${i}` ? 'animate-pulse-shimmer' : ''}`}
                                                                     >
                                                                         {benefit}
                                                                     </p>
@@ -862,26 +890,22 @@ export default function Preview({ salesPage }: Props) {
                                                                 </div>
                                                                 <div className="space-y-3">
                                                                     <h4 
+                                                                        data-section={`features_breakdown.${i}.title`}
                                                                         contentEditable 
                                                                         suppressContentEditableWarning 
-                                                                        onBlur={(e) => {
-                                                                            const newFeatures = [...copy.features_breakdown];
-                                                                            newFeatures[i] = { ...newFeatures[i], title: e.currentTarget.innerText };
-                                                                            handleUpdateContent('features_breakdown', newFeatures);
-                                                                        }}
-                                                                        className="text-2xl font-bold outline-none cursor-text"
+                                                                        onBlur={(e) => handleBlur(`features_breakdown.${i}.title`, e.currentTarget.innerText)}
+                                                                        onClick={(e) => handleTextClick(e, `features_breakdown.${i}.title`)}
+                                                                        className={`text-2xl font-bold outline-none cursor-text hover:bg-indigo-500/5 rounded-xl transition-all ${isMagicLoading && selectedSection === `features_breakdown.${i}.title` ? 'animate-pulse-shimmer' : ''}`}
                                                                     >
                                                                         {f.title}
                                                                     </h4>
                                                                     <p 
+                                                                        data-section={`features_breakdown.${i}.description`}
                                                                         contentEditable 
                                                                         suppressContentEditableWarning 
-                                                                        onBlur={(e) => {
-                                                                            const newFeatures = [...copy.features_breakdown];
-                                                                            newFeatures[i] = { ...newFeatures[i], description: e.currentTarget.innerText };
-                                                                            handleUpdateContent('features_breakdown', newFeatures);
-                                                                        }}
-                                                                        className="opacity-60 leading-relaxed text-lg outline-none cursor-text"
+                                                                        onBlur={(e) => handleBlur(`features_breakdown.${i}.description`, e.currentTarget.innerText)}
+                                                                        onClick={(e) => handleTextClick(e, `features_breakdown.${i}.description`)}
+                                                                        className={`opacity-60 leading-relaxed text-lg outline-none cursor-text hover:bg-indigo-500/5 rounded-xl transition-all ${isMagicLoading && selectedSection === `features_breakdown.${i}.description` ? 'animate-pulse-shimmer' : ''}`}
                                                                     >
                                                                         {f.description}
                                                                     </p>
@@ -916,12 +940,39 @@ export default function Preview({ salesPage }: Props) {
                                                             <div className={`grid gap-8 ${viewport === 'mobile' ? 'grid-cols-1' : 'md:grid-cols-3'}`}>
                                                                 {copy.testimonials.map((t: any, i: number) => (
                                                                     <div key={i} className={`p-8 rounded-3xl border group/card hover:scale-105 transition-all ${salesPage.theme === 'dark_tech' ? 'bg-white/5 border-green-500/20 text-green-400' : 'bg-white border-slate-100 shadow-sm'}`}>
-                                                                        <p className="italic mb-6">"{t.content}"</p>
+                                                                        <p 
+                                                                            data-section={`testimonials.${i}.content`}
+                                                                            contentEditable 
+                                                                            suppressContentEditableWarning 
+                                                                            onBlur={(e) => handleBlur(`testimonials.${i}.content`, e.currentTarget.innerText)}
+                                                                            onClick={(e) => handleTextClick(e, `testimonials.${i}.content`)}
+                                                                            className={`italic mb-6 outline-none cursor-text hover:bg-indigo-500/5 rounded-xl transition-all ${isMagicLoading && selectedSection === `testimonials.${i}.content` ? 'animate-pulse-shimmer' : ''}`}
+                                                                        >
+                                                                            "{t.content}"
+                                                                        </p>
                                                                         <div className="flex items-center space-x-3">
                                                                             <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">{t.name[0]}</div>
                                                                             <div>
-                                                                                <div className="font-bold text-sm">{t.name}</div>
-                                                                                <div className="text-[10px] opacity-50 uppercase tracking-wider">{t.role}</div>
+                                                                                <div 
+                                                                                    data-section={`testimonials.${i}.name`}
+                                                                                    contentEditable 
+                                                                                    suppressContentEditableWarning 
+                                                                                    onBlur={(e) => handleBlur(`testimonials.${i}.name`, e.currentTarget.innerText)}
+                                                                                    onClick={(e) => handleTextClick(e, `testimonials.${i}.name`)}
+                                                                                    className="font-bold text-sm outline-none cursor-text hover:bg-indigo-500/5 rounded-lg px-1 transition-all"
+                                                                                >
+                                                                                    {t.name}
+                                                                                </div>
+                                                                                <div 
+                                                                                    data-section={`testimonials.${i}.role`}
+                                                                                    contentEditable 
+                                                                                    suppressContentEditableWarning 
+                                                                                    onBlur={(e) => handleBlur(`testimonials.${i}.role`, e.currentTarget.innerText)}
+                                                                                    onClick={(e) => handleTextClick(e, `testimonials.${i}.role`)}
+                                                                                    className="text-[10px] opacity-50 uppercase tracking-wider outline-none cursor-text hover:bg-indigo-500/5 rounded-lg px-1 transition-all"
+                                                                                >
+                                                                                    {t.role}
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -958,9 +1009,27 @@ export default function Preview({ salesPage }: Props) {
                                                                     <div key={i} className={`p-6 rounded-2xl border hover:border-indigo-500/30 transition-all ${salesPage.theme === 'dark_tech' ? 'bg-black border-green-500/20' : 'bg-white border-slate-100 shadow-sm'}`}>
                                                                         <div className="font-bold mb-2 flex items-center space-x-2 text-indigo-500">
                                                                             <span>Q:</span>
-                                                                            <span className={salesPage.theme === 'dark_tech' ? 'text-green-400' : 'text-slate-900'}>{f.question}</span>
+                                                                            <span 
+                                                                                data-section={`faq.${i}.question`}
+                                                                                contentEditable 
+                                                                                suppressContentEditableWarning 
+                                                                                onBlur={(e) => handleBlur(`faq.${i}.question`, e.currentTarget.innerText)}
+                                                                                onClick={(e) => handleTextClick(e, `faq.${i}.question`)}
+                                                                                className={`outline-none cursor-text hover:bg-indigo-500/5 rounded-lg px-1 transition-all ${salesPage.theme === 'dark_tech' ? 'text-green-400' : 'text-slate-900'} ${isMagicLoading && selectedSection === `faq.${i}.question` ? 'animate-pulse-shimmer' : ''}`}
+                                                                            >
+                                                                                {f.question}
+                                                                            </span>
                                                                         </div>
-                                                                        <div className="opacity-60 text-sm leading-relaxed">{f.answer}</div>
+                                                                        <div 
+                                                                            data-section={`faq.${i}.answer`}
+                                                                            contentEditable 
+                                                                            suppressContentEditableWarning 
+                                                                            onBlur={(e) => handleBlur(`faq.${i}.answer`, e.currentTarget.innerText)}
+                                                                            onClick={(e) => handleTextClick(e, `faq.${i}.answer`)}
+                                                                            className={`opacity-60 text-sm leading-relaxed outline-none cursor-text hover:bg-indigo-500/5 rounded-lg px-1 transition-all ${isMagicLoading && selectedSection === `faq.${i}.answer` ? 'animate-pulse-shimmer' : ''}`}
+                                                                        >
+                                                                            {f.answer}
+                                                                        </div>
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -1059,13 +1128,28 @@ export default function Preview({ salesPage }: Props) {
                     background: linear-gradient(
                         90deg, 
                         rgba(99, 102, 241, 0.1) 25%, 
-                        rgba(99, 102, 241, 0.3) 50%, 
+                        rgba(99, 102, 241, 0.4) 50%, 
                         rgba(99, 102, 241, 0.1) 75%
                     );
                     background-size: 200% 100%;
                     animation: shimmer 1.5s infinite;
-                    border-radius: 0.5rem;
+                    border-radius: 0.8rem;
                     color: transparent !important;
+                    position: relative;
+                }
+                
+                .animate-pulse-shimmer::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border: 2px solid rgba(99, 102, 241, 0.3);
+                    border-radius: inherit;
+                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: .5; }
                 }
 
                 @keyframes shimmer {
