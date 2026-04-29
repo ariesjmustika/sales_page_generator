@@ -22,17 +22,34 @@ interface Props {
             pricing_display: string;
             cta: string;
             image_keyword?: string;
+            faq?: Array<{question: string, answer: string}>;
+            testimonials?: Array<{name: string, role: string, content: string}>;
+            meta_title?: string;
+            meta_description?: string;
         };
         theme: string;
         image_style: string;
         image_seed: number;
+        settings?: {
+            visible_sections?: {
+                faq?: boolean;
+                testimonials?: boolean;
+            };
+            whatsapp_number?: string;
+            whatsapp_message?: string;
+            image_filters?: {
+                grayscale?: boolean;
+                invert?: boolean;
+                sepia?: boolean;
+            };
+        };
         created_at: string;
     };
 }
 
 export default function Preview({ salesPage }: Props) {
     const [copy, setCopy] = useState(salesPage.generated_copy);
-    const [activeTab, setActiveTab] = useState<'preview' | 'content'>('preview');
+    const [activeTab, setActiveTab] = useState<'preview' | 'content' | 'conversion'>('preview');
     const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
     const [isRegenerating, setIsRegenerating] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -131,12 +148,6 @@ export default function Preview({ salesPage }: Props) {
     const [selectedSection, setSelectedSection] = useState<string | null>(null);
     const [selectedText, setSelectedText] = useState("");
     const [isMagicLoading, setIsMagicLoading] = useState(false);
-    const [imageFilters, setImageFilters] = useState({
-        grayscale: false,
-        invert: false,
-        sepia: false,
-        blur: 0
-    });
 
     const handleImageFilter = (filter: string) => {
         const currentFilters = salesPage.settings?.image_filters || { grayscale: false, invert: false, sepia: false };
@@ -533,9 +544,9 @@ export default function Preview({ salesPage }: Props) {
                                                 <div className="group relative w-full aspect-video rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10 transform transition-all hover:scale-[1.01] bg-white/5 backdrop-blur-sm">
                                                     {/* Image Magic Toolbar */}
                                                     <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center space-x-2 bg-black/60 backdrop-blur-xl border border-white/10 p-2 rounded-2xl opacity-0 group-hover:opacity-100 transition-all z-10 scale-90 group-hover:scale-100">
-                                                        <button onClick={() => handleImageFilter('grayscale')} className={`p-3 rounded-xl transition-all ${imageFilters.grayscale ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`} title="Grayscale"><ImageIcon className="w-4 h-4" /></button>
-                                                        <button onClick={() => handleImageFilter('invert')} className={`p-3 rounded-xl transition-all ${imageFilters.invert ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`} title="Invert Colors"><Zap className="w-4 h-4" /></button>
-                                                        <button onClick={() => handleImageFilter('sepia')} className={`p-3 rounded-xl transition-all ${imageFilters.sepia ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`} title="Sepia Mood"><Palette className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleImageFilter('grayscale')} className={`p-3 rounded-xl transition-all ${salesPage.settings?.image_filters?.grayscale ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`} title="Grayscale"><ImageIcon className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleImageFilter('invert')} className={`p-3 rounded-xl transition-all ${salesPage.settings?.image_filters?.invert ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`} title="Invert Colors"><Zap className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleImageFilter('sepia')} className={`p-3 rounded-xl transition-all ${salesPage.settings?.image_filters?.sepia ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`} title="Sepia Mood"><Palette className="w-4 h-4" /></button>
                                                         <div className="h-6 w-px bg-white/10 mx-1" />
                                                         <button onClick={() => handleRegenerateImage()} className="p-3 rounded-xl text-indigo-400 hover:bg-indigo-500/10 transition-all" title="New AI Image"><RefreshCw className="w-4 h-4" /></button>
                                                     </div>
@@ -544,12 +555,11 @@ export default function Preview({ salesPage }: Props) {
                                                         src={heroImage} 
                                                         alt="Magic Hero" 
                                                         referrerPolicy="no-referrer"
-                                                        className={`w-full h-full object-cover transition-all duration-700 ${salesPage.settings?.image_filters?.grayscale ? 'grayscale' : ''} ${salesPage.settings?.image_filters?.invert ? 'invert' : ''} ${salesPage.settings?.image_filters?.sepia ? 'sepia' : ''}`}
+                                                        className={`w-full h-full object-cover transition-all duration-700 ${salesPage.settings?.image_filters?.grayscale ? 'grayscale' : ''} ${salesPage.settings?.image_filters?.invert ? 'invert' : ''} ${salesPage.settings?.image_filters?.sepia ? 'sepia' : ''} ${salesPage.theme === 'dark_tech' && !salesPage.settings?.image_filters ? 'grayscale invert brightness-50 contrast-150' : ''}`}
                                                         onError={(e) => {
                                                             e.currentTarget.onerror = null;
                                                             e.currentTarget.src = getFallbackImage();
                                                         }}
-                                                        className={`w-full h-full object-cover transition-all duration-1000 ${salesPage.theme === 'dark_tech' ? 'grayscale invert brightness-50 contrast-150' : ''}`} 
                                                     />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                                                     <div className="absolute top-6 right-6 flex items-center space-x-2">

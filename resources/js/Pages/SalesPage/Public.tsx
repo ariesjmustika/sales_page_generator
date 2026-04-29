@@ -17,6 +17,10 @@ interface Props {
             pricing_display: string;
             cta: string;
             image_keyword?: string;
+            meta_title?: string;
+            meta_description?: string;
+            faq?: Array<{question: string, answer: string}>;
+            testimonials?: Array<{name: string, role: string, content: string}>;
         };
         theme: string;
         image_style: string;
@@ -25,6 +29,15 @@ interface Props {
             cta_type: string;
             whatsapp_number: string;
             whatsapp_message: string;
+            image_filters?: {
+                grayscale?: boolean;
+                invert?: boolean;
+                sepia?: boolean;
+            };
+            visible_sections?: {
+                faq?: boolean;
+                testimonials?: boolean;
+            };
         };
     };
 }
