@@ -90,7 +90,7 @@ export default function Preview({ salesPage }: Props) {
     const handleUpdateContent = (path: string, value: any) => {
         const newCopy = JSON.parse(JSON.stringify(copy));
         const parts = path.split('.');
-        let current = newCopy;
+        let current: any = newCopy;
         
         for (let i = 0; i < parts.length - 1; i++) {
             current = current[parts[i]];
@@ -207,7 +207,7 @@ export default function Preview({ salesPage }: Props) {
                     const el = document.querySelector(`[data-section="${selectedSection}"]`);
                     if (el) {
                         // Resolve value from potentially nested key path (e.g. "benefits.0")
-                        let val = newCopy;
+                        let val: any = newCopy;
                         const parts = selectedSection.split('.');
                         for (const part of parts) {
                             val = val?.[part];
@@ -237,14 +237,14 @@ export default function Preview({ salesPage }: Props) {
         if (isMagicLoading || toolbarPos) return; 
         
         // Resolve current value from potentially nested key path for comparison
-        let currentVal = copy;
+        let currentVal: any = copy;
         const parts = section.split('.');
         for (const part of parts) {
             currentVal = currentVal?.[part];
         }
 
         const cleanText = text.trim();
-        if (cleanText === currentVal) return; // No change, no save
+        if (cleanText === (currentVal as string)) return; // No change, no save
         
         handleUpdateContent(section, cleanText);
     };
