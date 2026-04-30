@@ -16,7 +16,7 @@ import {
     Zap,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 interface SalesPage {
     id: number;
@@ -117,9 +117,7 @@ export default function Dashboard({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setDeleteUuid(null)}
-                            className={`absolute inset-0 backdrop-blur-sm transition-colors duration-500 ${
-                                theme === 'dark' ? 'bg-black/60' : 'bg-white/40'
-                            }`}
+                            className="absolute inset-0 backdrop-blur-sm transition-colors duration-500 dark:bg-black/60 bg-white/40"
                         />
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
