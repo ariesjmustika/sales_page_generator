@@ -16,6 +16,16 @@ Route::get('/', function () {
     ]);
 });
 
+// TEMPORARY SEEDER ROUTE (Hapus setelah dipakai!)
+Route::get('/seed-database', function() {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return "Database Seeded Successfully! Akun demo: demo@marketai.com / demo123456. SEGERA HAPUS ROUTE INI!";
+    } catch (\Exception $e) {
+        return "Error Seeding: " . $e->getMessage();
+    }
+});
+
 Route::get('/v/{uuid}', [SalesPageController::class, 'publicShow'])->name('sales-pages.public');
 
 Route::middleware(['auth', 'verified'])->group(function () {

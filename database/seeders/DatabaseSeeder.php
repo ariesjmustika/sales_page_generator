@@ -20,10 +20,5 @@ class DatabaseSeeder extends Seeder
             'email' => 'demo@marketai.com',
             'password' => \Illuminate\Support\Facades\Hash::make('demo123456'),
         ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
     }
 }

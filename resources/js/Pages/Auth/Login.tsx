@@ -46,10 +46,17 @@ export default function Login({
                 className="group mb-8 cursor-pointer rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4 transition-all hover:bg-indigo-500/20"
                 onClick={() => {
                     setData({
-                        ...data,
                         email: 'demo@marketai.com',
                         password: 'demo123456',
+                        remember: true,
                     });
+                    
+                    // Small timeout to allow state to settle before manual submit
+                    setTimeout(() => {
+                        post(route('login'), {
+                            onFinish: () => reset('password'),
+                        });
+                    }, 100);
                 }}
             >
                 <div className="mb-2 flex items-center justify-between">
