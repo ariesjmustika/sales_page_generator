@@ -17,6 +17,11 @@ export default function Register() {
 
     const [loadingStage, setLoadingStage] = useState(1);
     const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+    const [theme, setTheme] = useState('dark');
+
+    useEffect(() => {
+        setTheme(localStorage.getItem('theme') || 'dark');
+    }, []);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
@@ -34,7 +39,6 @@ export default function Register() {
                 setLoadingStage((prev) => (prev < 2 ? prev + 1 : prev));
             }, 600);
         } else if (isOverlayVisible) {
-            // Hold the overlay for a split second after processing finishes for better UX
             const timer = setTimeout(() => {
                 setIsOverlayVisible(false);
             }, 800);
@@ -101,7 +105,7 @@ export default function Register() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-md"
+                        className={`fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-md ${theme === 'dark' ? 'bg-[#0a0a0c]/80' : 'bg-white/80'}`}
                     >
                         <div className="text-center">
                             <div className="relative mx-auto mb-6 h-20 w-20">
@@ -110,7 +114,7 @@ export default function Register() {
                                     <Sparkles className="h-6 w-6 text-indigo-400" />
                                 </div>
                             </div>
-                            <h2 className="text-xl font-bold text-white tracking-tight animate-pulse">
+                            <h2 className={`text-xl font-bold tracking-tight animate-pulse ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {loadingStage === 1 ? 'Creating your account...' : 'Authenticating access...'}
                             </h2>
                             <p className="mt-2 font-black uppercase tracking-[0.2em] text-[10px] text-gray-500">
@@ -122,13 +126,13 @@ export default function Register() {
             </AnimatePresence>
 
             <div className="mb-8 text-center">
-                <h1 className="text-3xl font-black tracking-tight text-white">Get Started</h1>
+                <h1 className={`text-3xl font-black tracking-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Get Started</h1>
                 <p className="mt-2 text-gray-400">Join MarketAI and build your first sales funnel today</p>
             </div>
 
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="name" className="text-gray-300 mb-2 flex items-center space-x-2">
+                    <InputLabel htmlFor="name" className={`mb-2 flex items-center space-x-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`}>
                         <User className="h-4 w-4" />
                         <span>Full Name</span>
                     </InputLabel>
@@ -138,7 +142,11 @@ export default function Register() {
                         name="name"
                         ref={nameInput}
                         value={data.name}
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.name ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.name ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="name"
                         isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
@@ -155,7 +163,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="email" className="text-gray-300 mb-2 flex items-center space-x-2">
+                    <InputLabel htmlFor="email" className={`mb-2 flex items-center space-x-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`}>
                         <Mail className="h-4 w-4" />
                         <span>Email Address</span>
                     </InputLabel>
@@ -166,7 +174,11 @@ export default function Register() {
                         name="email"
                         ref={emailInput}
                         value={data.email}
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.email ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.email ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         placeholder="your@email.com"
@@ -182,7 +194,7 @@ export default function Register() {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" className="text-gray-300 mb-2 flex items-center space-x-2">
+                    <InputLabel htmlFor="password" className={`mb-2 flex items-center space-x-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`}>
                         <Lock className="h-4 w-4" />
                         <span>Password</span>
                     </InputLabel>
@@ -193,7 +205,11 @@ export default function Register() {
                         name="password"
                         ref={passwordInput}
                         value={data.password}
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.password ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.password ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
                         placeholder="••••••••"
@@ -211,7 +227,7 @@ export default function Register() {
                 <div>
                     <InputLabel
                         htmlFor="password_confirmation"
-                        className="text-gray-300 mb-2 flex items-center space-x-2"
+                        className={`mb-2 flex items-center space-x-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`}
                     >
                         <Lock className="h-4 w-4" />
                         <span>Confirm Password</span>
@@ -223,7 +239,11 @@ export default function Register() {
                         name="password_confirmation"
                         ref={confirmInput}
                         value={data.password_confirmation}
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.password_confirmation ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.password_confirmation ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="new-password"
                         onChange={(e) =>
                             setData('password_confirmation', e.target.value)
@@ -254,7 +274,7 @@ export default function Register() {
                     Already have an account?{' '}
                     <Link
                         href={route('login')}
-                        className="font-bold text-white hover:text-indigo-400 transition-colors"
+                        className={`font-bold transition-colors ${theme === 'dark' ? 'text-white hover:text-indigo-400' : 'text-slate-900 hover:text-indigo-600'}`}
                     >
                         Sign in instead
                     </Link>

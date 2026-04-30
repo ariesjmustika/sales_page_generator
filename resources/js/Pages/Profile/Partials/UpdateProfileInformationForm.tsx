@@ -4,9 +4,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
-import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler, useState, useRef } from 'react';
+import { FormEventHandler, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,8 +22,13 @@ export default function UpdateProfileInformation({
     const user = usePage().props.auth.user;
     const [confirmingUpdate, setConfirmingUpdate] = useState(false);
     const nameInput = useRef<HTMLInputElement>(null);
+    const [theme, setTheme] = useState('dark');
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    useEffect(() => {
+        setTheme(localStorage.getItem('theme') || 'dark');
+    }, []);
+
+    const { data, setData, patch, errors, processing } =
         useForm({
             name: user.name,
             email: user.email,
@@ -64,7 +68,7 @@ export default function UpdateProfileInformation({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-md"
+                        className={`fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-md ${theme === 'dark' ? 'bg-[#0a0a0c]/80' : 'bg-white/80'}`}
                     >
                         <div className="text-center">
                             <div className="relative mx-auto mb-6 h-20 w-20">
@@ -73,7 +77,7 @@ export default function UpdateProfileInformation({
                                     <Sparkles className="h-6 w-6 text-indigo-400" />
                                 </div>
                             </div>
-                            <h2 className="text-xl font-bold text-white tracking-tight animate-pulse">Updating Profile...</h2>
+                            <h2 className={`text-xl font-bold tracking-tight animate-pulse ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Updating Profile...</h2>
                             <p className="text-sm text-gray-500 mt-2 uppercase tracking-[0.2em] font-black">Syncing Information</p>
                         </div>
                     </motion.div>
@@ -81,7 +85,7 @@ export default function UpdateProfileInformation({
             </AnimatePresence>
 
             <header>
-                <h2 className="text-xl font-bold text-white tracking-tight">
+                <h2 className={`text-xl font-bold tracking-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                     Profile Information
                 </h2>
 
@@ -92,12 +96,16 @@ export default function UpdateProfileInformation({
 
             <form onSubmit={requestUpdate} className="mt-8 space-y-6">
                 <div>
-                    <InputLabel htmlFor="name" value="Name" className="text-gray-300 mb-2" />
+                    <InputLabel htmlFor="name" value="Name" className={`mb-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`} />
 
                     <TextInput
                         id="name"
                         ref={nameInput}
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.name ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.name ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         autoComplete="name"
@@ -114,42 +122,27 @@ export default function UpdateProfileInformation({
 
                 <div>
                     <div className="flex items-center justify-between mb-2">
-                        <InputLabel htmlFor="email" value="Email Address" className="text-gray-300" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 bg-white/5 px-2 py-1 rounded-md border border-white/5">Verified & Locked</span>
+                        <InputLabel htmlFor="email" value="Email Address" className={`transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`} />
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md border transition-all ${
+                            theme === 'dark' 
+                            ? 'text-gray-500 bg-white/5 border-white/5' 
+                            : 'text-indigo-600 bg-indigo-50 border-indigo-100'
+                        }`}>Verified & Locked</span>
                     </div>
 
                     <TextInput
                         id="email"
                         type="email"
-                        className="mt-1 block w-full bg-white/5 border-white/10 text-gray-500 cursor-not-allowed rounded-xl py-4"
+                        className={`mt-1 block w-full cursor-not-allowed rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-gray-500'
+                            : 'bg-slate-100 border-slate-200 text-slate-400'
+                        }`}
                         value={data.email}
                         disabled
                     />
                     <p className="mt-2 text-[10px] text-gray-500 uppercase tracking-widest">Email cannot be changed for security reasons.</p>
                 </div>
-
-                {mustVerifyEmail && user.email_verified_at === null && (
-                    <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4">
-                        <p className="text-sm text-amber-400">
-                            Your email address is unverified.
-                            <Link
-                                href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="ml-2 font-bold underline hover:text-amber-300"
-                            >
-                                Click here to re-send the verification email.
-                            </Link>
-                        </p>
-
-                        {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-green-400">
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
-                        )}
-                    </div>
-                )}
 
                 <div className="flex items-center gap-4 pt-4">
                     <PrimaryButton 
@@ -162,11 +155,11 @@ export default function UpdateProfileInformation({
             </form>
 
             <Modal show={confirmingUpdate} onClose={() => setConfirmingUpdate(false)}>
-                <div className="p-10">
+                <div className={`p-10 transition-colors duration-500 ${theme === 'dark' ? 'bg-[#1a1a24]' : 'bg-white'}`}>
                     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/10 mb-6">
                         <AlertCircle className="h-8 w-8 text-indigo-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white text-center tracking-tight">
+                    <h2 className={`text-2xl font-bold text-center tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                         Confirm Profile Update?
                     </h2>
                     <p className="mt-4 text-center text-gray-400 leading-relaxed">
@@ -176,7 +169,11 @@ export default function UpdateProfileInformation({
                     <div className="mt-10 flex justify-center space-x-3">
                         <SecondaryButton 
                             onClick={() => setConfirmingUpdate(false)}
-                            className="px-8 py-4 bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 rounded-xl"
+                            className={`px-8 py-4 border rounded-xl transition-all ${
+                                theme === 'dark' 
+                                ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' 
+                                : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                            }`}
                         >
                             Cancel
                         </SecondaryButton>

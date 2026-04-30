@@ -78,6 +78,12 @@ export default function Preview({ salesPage }: Props) {
         'preview' | 'content' | 'conversion'
     >('preview');
     const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
+    const [theme, setTheme] = useState('dark');
+
+    useEffect(() => {
+        setTheme(localStorage.getItem('theme') || 'dark');
+    }, []);
+
 
     // Auto-detect viewport on mount
     useEffect(() => {
@@ -643,12 +649,12 @@ export default function Preview({ salesPage }: Props) {
                     <div className="flex items-center space-x-4">
                         <Link
                             href={route('dashboard')}
-                            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-white/10"
+                            className={`rounded-lg p-2 transition-colors ${theme === 'dark' ? 'text-gray-400 hover:bg-white/10' : 'text-slate-400 hover:bg-slate-100'}`}
                         >
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
                         <div>
-                            <h2 className="text-xl font-bold leading-tight text-white">
+                            <h2 className={`text-xl font-bold leading-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {salesPage.product_name}
                             </h2>
                             <div className="flex items-center space-x-2">
@@ -659,7 +665,7 @@ export default function Preview({ salesPage }: Props) {
                                     ).toLocaleDateString()}
                                 </p>
                                 {isSaving && (
-                                    <span className="flex animate-pulse items-center space-x-1 text-[10px] text-indigo-400">
+                                    <span className="flex animate-pulse items-center space-x-1 text-[10px] text-indigo-500">
                                         <Save className="h-3 w-3" />
                                         <span>Saving...</span>
                                     </span>
@@ -681,14 +687,22 @@ export default function Preview({ salesPage }: Props) {
                                 navigator.clipboard.writeText(url);
                                 toast.success('Public link copied!');
                             }}
-                            className="flex items-center space-x-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-white/10"
+                            className={`flex items-center space-x-2 rounded-xl border px-5 py-2.5 text-sm font-bold shadow-lg transition-all ${
+                                theme === 'dark' 
+                                ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' 
+                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                            }`}
                         >
                             <Copy className="h-4 w-4" />
                             <span>Share Link</span>
                         </button>
                         <button
                             onClick={() => window.print()}
-                            className="flex items-center space-x-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-white/10"
+                            className={`flex items-center space-x-2 rounded-xl border px-5 py-2.5 text-sm font-bold shadow-lg transition-all ${
+                                theme === 'dark' 
+                                ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' 
+                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                            }`}
                         >
                             <FileText className="h-4 w-4" />
                             <span>PDF</span>
@@ -725,7 +739,7 @@ export default function Preview({ salesPage }: Props) {
                     nav, header:not(.printable-content header) { display: none !important; }
                 }
             `}</style>
-            <Toaster position="top-right" theme="dark" />
+            <Toaster position="top-right" theme={theme === 'dark' ? 'dark' : 'light'} />
 
             {/* Custom Delete Modal */}
             <AnimatePresence>
@@ -742,12 +756,16 @@ export default function Preview({ salesPage }: Props) {
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="relative w-full max-w-md rounded-[2rem] border border-white/10 bg-[#1a1a24] p-8 shadow-2xl"
+                            className={`relative w-full max-w-md rounded-[2rem] border p-8 shadow-2xl transition-colors duration-500 ${
+                                theme === 'dark' 
+                                ? 'border-white/10 bg-[#1a1a24]' 
+                                : 'border-slate-100 bg-white shadow-indigo-500/10'
+                            }`}
                         >
                             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10">
                                 <AlertTriangle className="h-8 w-8 text-red-500" />
                             </div>
-                            <h3 className="mb-2 text-center text-2xl font-bold text-white">
+                            <h3 className={`mb-2 text-center text-2xl font-bold tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 Delete Page?
                             </h3>
                             <p className="mb-8 text-center text-gray-400">
@@ -757,7 +775,11 @@ export default function Preview({ salesPage }: Props) {
                             <div className="flex space-x-3">
                                 <button
                                     onClick={() => setShowDeleteModal(false)}
-                                    className="flex-1 rounded-2xl bg-white/5 px-6 py-4 font-bold text-white transition-all hover:bg-white/10"
+                                    className={`flex-1 rounded-2xl px-6 py-4 font-bold transition-all ${
+                                        theme === 'dark' 
+                                        ? 'bg-white/5 text-white hover:bg-white/10' 
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
                                 >
                                     Cancel
                                 </button>
@@ -786,13 +808,17 @@ export default function Preview({ salesPage }: Props) {
                             left: toolbarPos.left,
                             transform: 'translateX(-50%)',
                         }}
-                        className="z-[100] flex items-center space-x-1 rounded-2xl border border-white/10 bg-[#1a1a24]/90 p-1.5 shadow-2xl backdrop-blur-xl"
+                        className={`z-[100] flex items-center space-x-1 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-xl transition-colors duration-500 ${
+                            theme === 'dark' 
+                            ? 'border-white/10 bg-[#1a1a24]/90' 
+                            : 'border-indigo-100 bg-white/90'
+                        }`}
                     >
                         <div className="mr-1 flex items-center border-r border-white/5 pr-1">
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => formatText('bold')}
-                                className="rounded-xl p-2 text-gray-300 transition-all hover:bg-white/10"
+                                className={`rounded-xl p-2 transition-all ${theme === 'dark' ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'}`}
                                 title="Bold"
                             >
                                 <span className="font-bold">B</span>
@@ -800,7 +826,7 @@ export default function Preview({ salesPage }: Props) {
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => formatText('italic')}
-                                className="rounded-xl p-2 text-gray-300 transition-all hover:bg-white/10"
+                                className={`rounded-xl p-2 transition-all ${theme === 'dark' ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'}`}
                                 title="Italic"
                             >
                                 <span className="italic">I</span>
@@ -853,20 +879,22 @@ export default function Preview({ salesPage }: Props) {
                 )}
             </AnimatePresence>
 
-            <div className="min-h-screen bg-[#0a0a0c] py-8">
+            <div className={`min-h-screen transition-colors duration-500 py-8 ${theme === 'dark' ? 'bg-[#0a0a0c]' : 'bg-slate-50'}`}>
                 <div className="max-[1600px] mx-auto sm:px-6 lg:px-8">
                     <div
                         className={`relative grid grid-cols-1 gap-8 lg:grid-cols-5`}
                     >
                         {/* Mobile Sticky Header */}
-                        <div className="no-print sticky left-0 right-0 top-0 z-[110] flex items-center justify-between border-b border-white/10 bg-[#0a0a0c]/80 p-4 backdrop-blur-md lg:hidden">
+                        <div className={`no-print sticky left-0 right-0 top-0 z-[110] flex items-center justify-between border-b p-4 backdrop-blur-md lg:hidden transition-colors ${
+                            theme === 'dark' ? 'border-white/10 bg-[#0a0a0c]/80' : 'border-slate-200 bg-white/80 text-slate-900'
+                        }`}>
                             <div className="flex items-center space-x-3">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
                                     <span className="text-sm font-bold text-white">
                                         M
                                     </span>
                                 </div>
-                                <span className="text-sm font-bold tracking-tight text-white">
+                                <span className={`text-sm font-bold tracking-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                     MarketAI Editor
                                 </span>
                             </div>
@@ -882,14 +910,16 @@ export default function Preview({ salesPage }: Props) {
                         </div>
 
                         {/* Control Panel */}
-                        <div
-                            className={`no-print fixed inset-0 z-[200] space-y-6 bg-black/95 p-6 backdrop-blur-2xl transition-all duration-300 lg:relative lg:z-0 lg:col-span-1 lg:block lg:bg-transparent lg:p-0 lg:backdrop-blur-none ${showSidebar ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 lg:translate-x-0 lg:opacity-100'}`}
-                        >
-                            <div className="custom-scrollbar sticky top-24 max-h-[calc(100vh-40px)] overflow-y-auto rounded-3xl border border-white/10 bg-[#121217] p-6 pb-20 lg:pb-6">
-                                <div className="mb-8 flex items-center justify-between lg:hidden">
-                                    <h2 className="text-xl font-bold tracking-tight text-white">
-                                        Editor Controls
-                                    </h2>
+                            <div className={`no-print fixed inset-0 z-[200] space-y-6 p-6 backdrop-blur-2xl transition-all duration-300 lg:relative lg:z-0 lg:col-span-1 lg:block lg:bg-transparent lg:p-0 lg:backdrop-blur-none ${
+                                theme === 'dark' ? 'bg-black/95' : 'bg-white/95'
+                            } ${showSidebar ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 lg:translate-x-0 lg:opacity-100'}`}>
+                                <div className={`custom-scrollbar sticky top-24 max-h-[calc(100vh-40px)] overflow-y-auto rounded-3xl border p-6 pb-20 lg:pb-6 transition-all duration-500 ${
+                                    theme === 'dark' ? 'border-white/10 bg-[#121217]' : 'border-slate-200 bg-white shadow-xl shadow-slate-200/50'
+                                }`}>
+                                    <div className="mb-8 flex items-center justify-between lg:hidden">
+                                        <h2 className={`text-xl font-bold tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                            Editor Controls
+                                        </h2>
                                     <button
                                         onClick={() => setShowSidebar(false)}
                                         className="rounded-2xl bg-white/5 p-3 transition-transform active:scale-90"
@@ -903,7 +933,11 @@ export default function Preview({ salesPage }: Props) {
                                 <div className="space-y-2">
                                     <button
                                         onClick={() => setActiveTab('preview')}
-                                        className={`flex w-full items-center space-x-3 rounded-2xl px-4 py-3.5 transition-all ${activeTab === 'preview' ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 shadow-inner' : 'text-gray-500 hover:bg-white/5'}`}
+                                        className={`flex w-full items-center space-x-3 rounded-2xl px-4 py-3.5 transition-all ${
+                                            activeTab === 'preview' 
+                                            ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-500 shadow-inner' 
+                                            : theme === 'dark' ? 'text-gray-500 hover:bg-white/5' : 'text-slate-400 hover:bg-slate-50'
+                                        }`}
                                     >
                                         <Layout className="h-5 w-5" />
                                         <span className="text-sm font-bold">
@@ -1109,7 +1143,11 @@ export default function Preview({ salesPage }: Props) {
                                                 onClick={() =>
                                                     handleUpdateTheme(t.id)
                                                 }
-                                                className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3.5 transition-all ${salesPage.theme === t.id ? 'border-indigo-500/50 bg-white/10 text-white' : 'border-transparent bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                                className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3.5 transition-all ${
+                                                    salesPage.theme === t.id 
+                                                    ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-600' 
+                                                    : theme === 'dark' ? 'border-transparent bg-white/5 text-gray-500 hover:bg-white/10' : 'border-transparent bg-slate-50 text-slate-400 hover:bg-slate-100'
+                                                }`}
                                             >
                                                 <div className="flex items-center space-x-3">
                                                     <span
@@ -1140,7 +1178,13 @@ export default function Preview({ salesPage }: Props) {
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
-                                        className={`printable-content relative mx-auto transition-all duration-500 ease-in-out ${viewport === 'mobile' ? 'h-auto max-w-[min(420px,100%)] bg-black lg:h-[880px] lg:rounded-[4.5rem] lg:border-[14px] lg:border-[#1a1a24] lg:ring-1 lg:ring-white/20 lg:shadow-[0_0_80px_-10px_rgba(99,102,241,0.2)]' : 'w-full border border-white/5 lg:rounded-[3rem]'}`}
+                                        className={`printable-content relative mx-auto transition-all duration-500 ease-in-out ${
+                                            viewport === 'mobile' 
+                                            ? `h-auto max-w-[min(420px,100%)] lg:h-[880px] lg:rounded-[4.5rem] lg:border-[14px] lg:ring-1 lg:shadow-2xl ${
+                                                theme === 'dark' ? 'bg-black lg:border-[#1a1a24] lg:ring-white/20 lg:shadow-indigo-500/20' : 'bg-slate-100 lg:border-white lg:ring-slate-200 lg:shadow-slate-300/50'
+                                              }` 
+                                            : `w-full lg:rounded-[3rem] border ${theme === 'dark' ? 'border-white/5' : 'border-slate-200 shadow-xl shadow-slate-200/50'}`
+                                        }`}
                                     >
                                         {/* Realistic Mobile Shell Details */}
                                         {viewport === 'mobile' && (
@@ -1660,7 +1704,7 @@ export default function Preview({ salesPage }: Props) {
 
                                                 {/* Features Breakdown */}
                                                 <section
-                                                    className={`${viewport === 'mobile' ? 'py-16' : 'py-32'} ${isCorporate || isMinimal ? 'bg-slate-50' : 'bg-white/5'}`}
+                                                    className={`${viewport === 'mobile' ? 'py-16' : 'py-32'} ${isCorporate || isMinimal ? (theme === 'dark' ? 'bg-white/5' : 'bg-slate-50') : 'bg-white/5'}`}
                                                 >
                                                     <div
                                                         className={`grid gap-16 text-left ${viewport === 'mobile' ? 'grid-cols-1' : 'md:grid-cols-2'}`}
@@ -2119,15 +2163,17 @@ export default function Preview({ salesPage }: Props) {
                                         </div>
                                     </motion.div>
                                 ) : activeTab === 'conversion' ? (
-                                    <motion.div
-                                        key="conversion"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 10 }}
-                                        className="rounded-[2.5rem] border border-white/10 bg-[#121217] p-10"
-                                    >
-                                        <div className="mb-10 flex items-center justify-between border-b border-white/5 pb-6">
-                                            <h3 className="text-2xl font-bold text-white">
+                                        <motion.div
+                                            key="conversion"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 10 }}
+                                            className={`rounded-[2.5rem] border p-10 transition-colors duration-500 ${
+                                                theme === 'dark' ? 'border-white/10 bg-[#121217]' : 'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
+                                            }`}
+                                        >
+                                        <div className={`mb-10 flex items-center justify-between border-b pb-6 ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}>
+                                            <h3 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                                 Conversion Settings
                                             </h3>
                                             <div className="flex items-center space-x-2 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-green-400">
@@ -2166,7 +2212,9 @@ export default function Preview({ salesPage }: Props) {
                                                             e.target.value,
                                                         )
                                                     }
-                                                    className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-lg text-white outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                                    className={`w-full rounded-2xl border p-6 text-lg outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${
+                                                        theme === 'dark' ? 'border-white/10 bg-white/[0.03] text-white' : 'border-slate-200 bg-slate-50 text-slate-900'
+                                                    }`}
                                                 />
                                                 <p className="text-[10px] italic text-gray-500">
                                                     Start with country code
@@ -2186,7 +2234,9 @@ export default function Preview({ salesPage }: Props) {
                                                             e.target.value,
                                                         )
                                                     }
-                                                    className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-lg text-white outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                                    className={`w-full resize-none rounded-2xl border p-6 text-lg outline-none transition-all focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${
+                                                        theme === 'dark' ? 'border-white/10 bg-white/[0.03] text-white' : 'border-slate-200 bg-slate-50 text-slate-900'
+                                                    }`}
                                                 />
                                             </div>
 
@@ -2210,10 +2260,12 @@ export default function Preview({ salesPage }: Props) {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: 10 }}
-                                        className="rounded-[2.5rem] border border-white/10 bg-[#121217] p-10"
+                                        className={`rounded-[2.5rem] border p-10 transition-colors duration-500 ${
+                                            theme === 'dark' ? 'border-white/10 bg-[#121217]' : 'border-slate-100 bg-white shadow-xl shadow-slate-200/50'
+                                        }`}
                                     >
-                                        <div className="mb-10 flex items-center justify-between border-b border-white/5 pb-6">
-                                            <h3 className="text-2xl font-bold text-white">
+                                        <div className={`mb-10 flex items-center justify-between border-b pb-6 ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}>
+                                            <h3 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                                 Data Structure
                                             </h3>
                                             <button
@@ -2269,7 +2321,10 @@ export default function Preview({ salesPage }: Props) {
                     __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 8px; } 
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } 
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 20px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { 
+                    background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}; 
+                    border-radius: 20px; 
+                 }
                 
                 .animate-pulse-shimmer {
                     background: linear-gradient(

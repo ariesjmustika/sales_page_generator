@@ -119,11 +119,11 @@ export default function Public({ salesPage }: Props) {
             </Head>
 
             <header className="mx-auto flex max-w-6xl flex-col items-center space-y-10 px-6 py-12 text-center md:space-y-16 md:py-24">
-                <div className="mb-4 flex scale-75 items-center space-x-2 opacity-50">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-                        <span className="text-lg font-bold text-white">M</span>
+                <div className="mb-4 flex scale-75 items-center space-x-2 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 shadow-lg shadow-indigo-600/20">
+                        <span className="text-xl font-bold text-white">M</span>
                     </div>
-                    <span className="font-bold tracking-tight">MarketAI</span>
+                    <span className={`text-2xl font-black tracking-tighter ${isCorporate || isMinimal ? 'text-slate-900' : 'text-white'}`}>MarketAI</span>
                 </div>
 
                 <h1

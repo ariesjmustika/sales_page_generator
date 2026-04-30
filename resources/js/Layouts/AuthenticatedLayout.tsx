@@ -3,7 +3,7 @@ import Footer from '@/Components/Footer';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage, router, useForm } from '@inertiajs/react';
-import { LayoutDashboard, LogOut, User, Sparkles, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, LogOut, User, Sparkles, AlertTriangle, Sun, Moon } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
@@ -14,6 +14,13 @@ export default function Authenticated({
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user;
 
+    const [theme, setTheme] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') || 'dark';
+        }
+        return 'dark';
+    });
+
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
     
@@ -21,6 +28,20 @@ export default function Authenticated({
     const [confirmingLogout, setConfirmingLogout] = useState(false);
     const [isNavigating, setIsNavigating] = useState(false);
     const { post } = useForm();
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    };
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [theme]);
 
     const handleLogout = () => {
         setConfirmingLogout(true);
@@ -45,8 +66,8 @@ export default function Authenticated({
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#0a0a0c]">
-            <Toaster position="top-right" theme="dark" richColors />
+        <div className={`min-h-screen transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0a0a0c]' : 'bg-[#F8F9FA]'}`}>
+            <Toaster position="top-right" theme={theme === 'dark' ? 'dark' : 'light'} richColors />
             
             <AnimatePresence>
                 {(isLoggingOut || isNavigating) && (
@@ -54,7 +75,9 @@ export default function Authenticated({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-md"
+                        className={`fixed inset-0 z-[200] flex items-center justify-center backdrop-blur-md transition-colors duration-500 ${
+                            theme === 'dark' ? 'bg-[#0a0a0c]/80' : 'bg-white/80'
+                        }`}
                     >
                         <div className="text-center">
                             <div className="relative mx-auto mb-6 h-20 w-20">
@@ -63,7 +86,7 @@ export default function Authenticated({
                                     <Sparkles className="h-6 w-6 text-indigo-400" />
                                 </div>
                             </div>
-                            <h2 className="text-xl font-bold text-white tracking-tight animate-pulse">
+                            <h2 className={`text-xl font-bold tracking-tight animate-pulse transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {isLoggingOut ? 'Logging Out...' : 'Loading MarketAI...'}
                             </h2>
                             <p className="text-sm text-gray-500 mt-2 uppercase tracking-[0.2em] font-black">
@@ -86,19 +109,27 @@ export default function Authenticated({
                             initial={{ scale: 0.95 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0.95 }}
-                            className="bg-[#121217] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+                            className={`rounded-2xl p-6 w-full max-w-sm shadow-2xl border transition-all duration-500 ${
+                                theme === 'dark' 
+                                ? 'bg-[#121217] border-white/10' 
+                                : 'bg-white border-slate-100 shadow-slate-200/50'
+                            }`}
                         >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="p-2 bg-red-500/10 rounded-full">
                                     <AlertTriangle className="h-6 w-6 text-red-500" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white">Log Out?</h3>
+                                <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Log Out?</h3>
                             </div>
-                            <p className="text-gray-400 text-sm mb-6">Are you sure you want to end your current session?</p>
+                            <p className="text-gray-500 text-sm mb-6">Are you sure you want to end your current session?</p>
                             <div className="flex space-x-3">
                                 <button
                                     onClick={() => setConfirmingLogout(false)}
-                                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg text-sm font-medium transition"
+                                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                                        theme === 'dark' 
+                                        ? 'bg-white/5 hover:bg-white/10 text-white' 
+                                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                                    }`}
                                 >
                                     Cancel
                                 </button>
@@ -114,19 +145,19 @@ export default function Authenticated({
                 )}
             </AnimatePresence>
 
-            <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#121217]/50 backdrop-blur-xl">
+            <nav className={`sticky top-0 z-50 border-b transition-all duration-500 ${theme === 'dark' ? 'border-white/5 bg-[#121217]/50' : 'border-slate-200 bg-white/70'} backdrop-blur-xl`}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
                                     <div className="flex items-center space-x-2">
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-600/20">
                                             <span className="text-xl font-bold text-white">
                                                 M
                                             </span>
                                         </div>
-                                        <span className="hidden text-lg font-bold text-white sm:block">
+                                        <span className={`hidden text-lg font-black tracking-tight sm:block ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                             MarketAI
                                         </span>
                                     </div>
@@ -137,7 +168,7 @@ export default function Authenticated({
                                 <NavLink
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
-                                    className="text-gray-400 hover:text-white"
+                                    className={theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}
                                 >
                                     <div className="flex items-center space-x-2">
                                         <LayoutDashboard className="h-4 w-4" />
@@ -147,19 +178,46 @@ export default function Authenticated({
                             </div>
                         </div>
 
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
+                        <div className="hidden sm:ms-6 sm:flex sm:items-center sm:space-x-4">
+                            {/* Theme Toggle Button */}
+                            <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={toggleTheme}
+                                className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all duration-300 ${
+                                    theme === 'dark' 
+                                    ? 'border-white/10 bg-white/5 text-yellow-400 hover:bg-white/10' 
+                                    : 'border-slate-200 bg-slate-50 text-indigo-600 hover:bg-slate-100'
+                                } shadow-sm`}
+                            >
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={theme}
+                                        initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                                        exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                                    </motion.div>
+                                </AnimatePresence>
+                            </motion.button>
+
+                            <div className="relative">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium leading-4 text-gray-300 transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:outline-none"
+                                                className={`inline-flex items-center rounded-xl border px-4 py-2 text-sm font-bold transition duration-150 ease-in-out focus:outline-none ${
+                                                    theme === 'dark'
+                                                    ? 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'
+                                                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm'
+                                                }`}
                                             >
                                                 {user.name}
 
                                                 <svg
-                                                    className="-me-0.5 ms-2 h-4 w-4"
+                                                    className="-me-0.5 ms-2 h-4 w-4 opacity-50"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     viewBox="0 0 20 20"
                                                     fill="currentColor"
@@ -182,7 +240,7 @@ export default function Authenticated({
                                             <User className="h-4 w-4" />
                                             <span className="font-medium">Profile Settings</span>
                                         </Dropdown.Link>
-                                        <div className="border-t border-white/5 my-1" />
+                                        <div className={`border-t my-1 ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`} />
                                         <button
                                             onClick={handleLogout}
                                             className="flex w-full items-center space-x-2 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
@@ -241,22 +299,26 @@ export default function Authenticated({
                 <div
                     className={
                         (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' border-t border-white/5 bg-[#121217] sm:hidden'
+                        ` border-t transition-colors duration-500 sm:hidden ${
+                            theme === 'dark' 
+                            ? 'border-white/5 bg-[#121217]' 
+                            : 'border-slate-200 bg-white'
+                        }`
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
                             href={route('dashboard')}
                             active={route().current('dashboard')}
-                            className="text-gray-300"
+                            className={theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}
                         >
                             Dashboard
                         </ResponsiveNavLink>
                     </div>
 
-                    <div className="border-t border-white/5 pb-1 pt-4">
+                    <div className={`border-t pb-1 pt-4 ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}>
                         <div className="px-4">
-                            <div className="text-base font-medium text-gray-200">
+                            <div className={`text-base font-bold ${theme === 'dark' ? 'text-gray-200' : 'text-slate-900'}`}>
                                 {user.name}
                             </div>
                             <div className="text-sm font-medium text-gray-500">
@@ -267,7 +329,7 @@ export default function Authenticated({
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink
                                 href={route('profile.edit')}
-                                className="text-gray-400"
+                                className={theme === 'dark' ? 'text-gray-400' : 'text-slate-600'}
                             >
                                 Profile
                             </ResponsiveNavLink>
@@ -283,9 +345,15 @@ export default function Authenticated({
             </nav>
 
             {header && (
-                <header className="border-b border-white/5 bg-[#121217]/30">
+                <header className={`border-b transition-colors duration-500 ${
+                    theme === 'dark' 
+                    ? 'border-white/5 bg-[#121217]/30' 
+                    : 'border-slate-200 bg-white/50 shadow-sm'
+                }`}>
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                        {header}
+                        <div className={`${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                            {header}
+                        </div>
                     </div>
                 </header>
             )}

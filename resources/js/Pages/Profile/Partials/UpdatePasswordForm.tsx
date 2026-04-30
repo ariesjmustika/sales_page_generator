@@ -4,9 +4,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
-import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
-import { FormEventHandler, useRef, useState } from 'react';
+import { FormEventHandler, useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,6 +19,11 @@ export default function UpdatePasswordForm({
     const currentPasswordInput = useRef<HTMLInputElement>(null);
     const confirmInput = useRef<HTMLInputElement>(null);
     const [confirmingPasswordUpdate, setConfirmingPasswordUpdate] = useState(false);
+    const [theme, setTheme] = useState('dark');
+
+    useEffect(() => {
+        setTheme(localStorage.getItem('theme') || 'dark');
+    }, []);
 
     const {
         data,
@@ -28,7 +32,6 @@ export default function UpdatePasswordForm({
         put,
         reset,
         processing,
-        recentlySuccessful,
     } = useForm({
         current_password: '',
         password: '',
@@ -93,7 +96,7 @@ export default function UpdatePasswordForm({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-md"
+                        className={`fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-md ${theme === 'dark' ? 'bg-[#0a0a0c]/80' : 'bg-white/80'}`}
                     >
                         <div className="text-center">
                             <div className="relative mx-auto mb-6 h-20 w-20">
@@ -102,7 +105,7 @@ export default function UpdatePasswordForm({
                                     <Lock className="h-6 w-6 text-indigo-400" />
                                 </div>
                             </div>
-                            <h2 className="text-xl font-bold text-white tracking-tight animate-pulse">
+                            <h2 className={`text-xl font-bold tracking-tight animate-pulse ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 Updating Password...
                             </h2>
                             <p className="mt-2 font-black uppercase tracking-[0.2em] text-[10px] text-gray-500">
@@ -114,7 +117,7 @@ export default function UpdatePasswordForm({
             </AnimatePresence>
 
             <header>
-                <h2 className="text-xl font-bold text-white tracking-tight">
+                <h2 className={`text-xl font-bold tracking-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                     Update Password
                 </h2>
 
@@ -129,7 +132,7 @@ export default function UpdatePasswordForm({
                     <InputLabel
                         htmlFor="current_password"
                         value="Current Password"
-                        className="text-gray-300 mb-2"
+                        className={`mb-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`}
                     />
 
                     <TextInput
@@ -140,7 +143,11 @@ export default function UpdatePasswordForm({
                             setData('current_password', e.target.value)
                         }
                         type="password"
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.current_password ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.current_password ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="current-password"
                     />
 
@@ -157,7 +164,7 @@ export default function UpdatePasswordForm({
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="New Password" className="text-gray-300 mb-2" />
+                    <InputLabel htmlFor="password" value="New Password" className={`mb-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`} />
 
                     <TextInput
                         id="password"
@@ -165,7 +172,11 @@ export default function UpdatePasswordForm({
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                         type="password"
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.password ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.password ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="new-password"
                     />
 
@@ -182,7 +193,7 @@ export default function UpdatePasswordForm({
                     <InputLabel
                         htmlFor="password_confirmation"
                         value="Confirm Password"
-                        className="text-gray-300 mb-2"
+                        className={`mb-2 transition-colors ${theme === 'dark' ? 'text-gray-300' : 'text-slate-600'}`}
                     />
 
                     <TextInput
@@ -193,7 +204,11 @@ export default function UpdatePasswordForm({
                             setData('password_confirmation', e.target.value)
                         }
                         type="password"
-                        className={`mt-1 block w-full bg-white/5 border-white/10 text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-xl py-4 transition-all ${errors.password_confirmation ? 'border-red-500/50 bg-red-500/5' : ''}`}
+                        className={`mt-1 block w-full rounded-xl py-4 transition-all ${
+                            theme === 'dark'
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-900'
+                        } focus:border-indigo-500 focus:ring-indigo-500 ${errors.password_confirmation ? 'border-red-500/50 bg-red-500/5' : ''}`}
                         autoComplete="new-password"
                     />
 
@@ -220,11 +235,11 @@ export default function UpdatePasswordForm({
             </form>
 
             <Modal show={confirmingPasswordUpdate} onClose={() => setConfirmingPasswordUpdate(false)}>
-                <div className="p-10">
+                <div className={`p-10 transition-colors duration-500 ${theme === 'dark' ? 'bg-[#1a1a24]' : 'bg-white'}`}>
                     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/10 mb-6">
                         <ShieldCheck className="h-8 w-8 text-indigo-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white text-center tracking-tight">
+                    <h2 className={`text-2xl font-bold text-center tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                         Confirm Password Change?
                     </h2>
                     <p className="mt-4 text-center text-gray-400 leading-relaxed">
@@ -234,7 +249,11 @@ export default function UpdatePasswordForm({
                     <div className="mt-10 flex justify-center space-x-3">
                         <SecondaryButton 
                             onClick={() => setConfirmingPasswordUpdate(false)}
-                            className="px-8 py-4 bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 rounded-xl"
+                            className={`px-8 py-4 border rounded-xl transition-all ${
+                                theme === 'dark' 
+                                ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' 
+                                : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                            }`}
                         >
                             Cancel
                         </SecondaryButton>
