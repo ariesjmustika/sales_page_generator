@@ -16,7 +16,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/p/{uuid}', [SalesPageController::class, 'publicShow'])->name('sales-pages.public');
+Route::get('/v/{uuid}', [SalesPageController::class, 'publicShow'])->name('sales-pages.public');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [SalesPageController::class, 'index'])->name('dashboard');

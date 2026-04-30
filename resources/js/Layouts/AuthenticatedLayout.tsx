@@ -1,11 +1,10 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import Footer from '@/Components/Footer';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
+import { LayoutDashboard, LogOut, User } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
-import { User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
-import Footer from '@/Components/Footer';
 
 export default function Authenticated({
     header,
@@ -18,17 +17,21 @@ export default function Authenticated({
 
     return (
         <div className="min-h-screen bg-[#0a0a0c]">
-            <nav className="border-b border-white/5 bg-[#121217]/50 backdrop-blur-xl sticky top-0 z-50">
+            <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#121217]/50 backdrop-blur-xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
                                     <div className="flex items-center space-x-2">
-                                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                                            <span className="text-white font-bold text-xl">M</span>
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
+                                            <span className="text-xl font-bold text-white">
+                                                M
+                                            </span>
                                         </div>
-                                        <span className="text-white font-bold text-lg hidden sm:block">MarketAI</span>
+                                        <span className="hidden text-lg font-bold text-white sm:block">
+                                            MarketAI
+                                        </span>
                                     </div>
                                 </Link>
                             </div>
@@ -40,7 +43,7 @@ export default function Authenticated({
                                     className="text-gray-400 hover:text-white"
                                 >
                                     <div className="flex items-center space-x-2">
-                                        <LayoutDashboard className="w-4 h-4" />
+                                        <LayoutDashboard className="h-4 w-4" />
                                         <span>Dashboard</span>
                                     </div>
                                 </NavLink>
@@ -54,7 +57,7 @@ export default function Authenticated({
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium leading-4 text-gray-300 transition duration-150 ease-in-out hover:text-white hover:bg-white/10 focus:outline-none"
+                                                className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium leading-4 text-gray-300 transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:outline-none"
                                             >
                                                 {user.name}
 
@@ -79,7 +82,7 @@ export default function Authenticated({
                                             href={route('profile.edit')}
                                             className="flex items-center space-x-2 text-gray-300 hover:bg-white/5"
                                         >
-                                            <User className="w-4 h-4" />
+                                            <User className="h-4 w-4" />
                                             <span>Profile</span>
                                         </Dropdown.Link>
                                         <Dropdown.Link
@@ -88,7 +91,7 @@ export default function Authenticated({
                                             as="button"
                                             className="flex items-center space-x-2 text-red-400 hover:bg-red-500/10"
                                         >
-                                            <LogOut className="w-4 h-4" />
+                                            <LogOut className="h-4 w-4" />
                                             <span>Log Out</span>
                                         </Dropdown.Link>
                                     </Dropdown.Content>
@@ -142,7 +145,7 @@ export default function Authenticated({
                 <div
                     className={
                         (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden border-t border-white/5 bg-[#121217]'
+                        ' border-t border-white/5 bg-[#121217] sm:hidden'
                     }
                 >
                     <div className="space-y-1 pb-3 pt-2">
@@ -166,7 +169,10 @@ export default function Authenticated({
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')} className="text-gray-400">
+                            <ResponsiveNavLink
+                                href={route('profile.edit')}
+                                className="text-gray-400"
+                            >
                                 Profile
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
@@ -183,7 +189,7 @@ export default function Authenticated({
             </nav>
 
             {header && (
-                <header className="bg-[#121217]/30 border-b border-white/5">
+                <header className="border-b border-white/5 bg-[#121217]/30">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
