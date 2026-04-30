@@ -32,20 +32,20 @@ export default function Welcome({
                 </div>
 
                 {/* Navbar */}
-                <nav className="relative z-50 mx-auto flex max-w-7xl items-center justify-between px-8 py-10">
-                    <div className="flex items-center space-x-3">
-                        <div className="flex h-12 w-12 rotate-3 cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 shadow-2xl shadow-indigo-500/20 transition-transform group-hover:rotate-0">
-                            <Zap className="h-6 w-6 text-white" />
+                <nav className="relative z-50 mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-8 sm:py-10">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 rotate-3 cursor-pointer items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 shadow-2xl shadow-indigo-500/20 transition-transform group-hover:rotate-0">
+                            <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                         </div>
-                        <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-3xl font-black tracking-tighter text-transparent">
+                        <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-xl sm:text-3xl font-black tracking-tighter text-transparent">
                             MarketAI
                         </span>
                     </div>
-                    <div className="flex items-center space-x-8">
+                    <div className="flex items-center space-x-3 sm:space-x-8">
                         {auth.user ? (
                             <Link
                                 href={route('dashboard')}
-                                className="rounded-full border border-white/10 bg-white/5 px-8 py-3 font-bold backdrop-blur-md transition-all hover:border-indigo-500/50 hover:bg-white/10"
+                                className="rounded-full border border-white/10 bg-white/5 px-6 py-2 sm:px-8 sm:py-3 text-sm sm:text-base font-bold backdrop-blur-md transition-all hover:border-indigo-500/50 hover:bg-white/10"
                             >
                                 Dashboard
                             </Link>
@@ -53,13 +53,13 @@ export default function Welcome({
                             <>
                                 <Link
                                     href={route('login')}
-                                    className="font-bold tracking-tight text-gray-400 transition-colors hover:text-white"
+                                    className="text-xs sm:text-base font-bold tracking-tight text-gray-400 transition-colors hover:text-white"
                                 >
                                     Sign In
                                 </Link>
                                 <Link
                                     href={route('register')}
-                                    className="rounded-full bg-indigo-600 px-8 py-3 font-black shadow-xl shadow-indigo-600/20 transition-all hover:bg-indigo-500 active:scale-95"
+                                    className="rounded-full bg-indigo-600 px-5 py-2 sm:px-8 sm:py-3 text-xs sm:text-base font-black shadow-xl shadow-indigo-600/20 transition-all hover:bg-indigo-500 active:scale-95"
                                 >
                                     Get Started
                                 </Link>
@@ -166,30 +166,37 @@ export default function Welcome({
 
                     {/* Tech Stack Badge */}
                     <div className="mt-40 flex flex-col items-center border-t border-white/5 pt-20">
-                        <span className="mb-10 text-xs font-black uppercase tracking-[0.4em] text-gray-500">
-                            Powering The Future With
+                        <span className="mb-12 text-xs font-black uppercase tracking-[0.4em] text-gray-500">
+                            Powering The Future With Elite Infrastructure
                         </span>
-                        <div className="flex flex-wrap items-center justify-center gap-12 opacity-40 grayscale transition-all duration-700 hover:grayscale-0">
-                            <div className="flex items-center space-x-3 text-2xl font-bold">
-                                <img
-                                    src="https://laravel.com/img/logomark.min.svg"
-                                    className="w-8"
-                                />{' '}
-                                <span>Laravel</span>
-                            </div>
-                            <div className="flex items-center space-x-3 text-2xl font-bold">
-                                <img
-                                    src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
-                                    className="w-10"
-                                />{' '}
-                                <span>React</span>
-                            </div>
-                            <div className="flex items-center space-x-3 text-2xl font-bold">
-                                <Sparkles className="text-indigo-400" />{' '}
+                        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-10 px-4 transition-all duration-700">
+                            <TechLogo 
+                                src="https://laravel.com/img/logomark.min.svg" 
+                                label="Laravel" 
+                                color="hover:text-[#FF2D20]"
+                            />
+                            <TechLogo 
+                                src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" 
+                                label="React" 
+                                color="hover:text-[#61DAFB]"
+                            />
+                            <div className="group flex items-center space-x-3 text-2xl font-bold text-gray-500 transition-all duration-300 hover:text-white">
+                                <Sparkles className="h-8 w-8 text-indigo-400 transition-transform group-hover:scale-110" />
                                 <span>Gemini AI</span>
                             </div>
-                            <div className="flex items-center space-x-3 text-2xl font-bold">
-                                <Smartphone className="text-fuchsia-400" />{' '}
+                            <div className="group flex items-center space-x-3 text-2xl font-bold text-gray-500 transition-all duration-300 hover:text-white">
+                                <svg className="h-8 w-8 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M15 13H9a1 1 0 0 1 0-2h6a1 1 0 0 1 0 2z"/>
+                                </svg>
+                                <span>Railway</span>
+                            </div>
+                            <TechLogo 
+                                src="https://neon.tech/brand/neon-logo-dark-color.svg" 
+                                label="Neon DB" 
+                                color="hover:text-[#00E599]"
+                            />
+                            <div className="group flex items-center space-x-3 text-2xl font-bold text-gray-500 transition-all duration-300 hover:text-fuchsia-400">
+                                <Smartphone className="h-8 w-8 transition-transform group-hover:scale-110" />
                                 <span>Responsive</span>
                             </div>
                         </div>
@@ -215,6 +222,28 @@ export default function Welcome({
                 }}
             />
         </>
+    );
+}
+
+function TechLogo({ 
+    src, 
+    label, 
+    color,
+    className = "" 
+}: { 
+    src: string; 
+    label: string; 
+    color: string;
+    className?: string;
+}) {
+    return (
+        <div className={`group flex items-center space-x-3 text-2xl font-bold text-gray-500 transition-all duration-300 ${color}`}>
+            <img
+                src={src}
+                className={`w-8 h-8 transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-110 ${className}`}
+            />
+            <span className="group-hover:translate-x-1 transition-transform">{label}</span>
+        </div>
     );
 }
 

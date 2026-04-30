@@ -16,11 +16,11 @@ Route::get('/', function () {
     ]);
 });
 
-// TEMPORARY SEEDER ROUTE (Hapus setelah dipakai!)
+// TEMPORARY SEEDER ROUTE
 Route::get('/seed-database', function() {
     try {
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        return "Database Seeded Successfully! Akun demo: demo@marketai.com / demo123456. SEGERA HAPUS ROUTE INI!";
+        return "Database Seeded Successfully! Akun demo: demo@marketai.com / demo123456.";
     } catch (\Exception $e) {
         return "Error Seeding: " . $e->getMessage();
     }

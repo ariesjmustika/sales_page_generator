@@ -2,9 +2,11 @@ import Dropdown from '@/Components/Dropdown';
 import Footer from '@/Components/Footer';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, LogOut, User } from 'lucide-react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { Link, usePage, router, useForm } from '@inertiajs/react';
+import { LayoutDashboard, LogOut, User, Sparkles, AlertTriangle } from 'lucide-react';
+import { PropsWithChildren, ReactNode, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Toaster } from 'sonner';
 
 export default function Authenticated({
     header,
@@ -14,9 +16,104 @@ export default function Authenticated({
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+    
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [confirmingLogout, setConfirmingLogout] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
+    const { post } = useForm();
+
+    const handleLogout = () => {
+        setConfirmingLogout(true);
+    };
+
+    const confirmLogout = () => {
+        setConfirmingLogout(false);
+        setIsLoggingOut(true);
+        post(route('logout'), {
+            onFinish: () => setIsLoggingOut(false),
+        });
+    };
+
+    useEffect(() => {
+        const unbindStart = router.on('start', () => setIsNavigating(true));
+        const unbindFinish = router.on('finish', () => setIsNavigating(false));
+
+        return () => {
+            unbindStart();
+            unbindFinish();
+        };
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#0a0a0c]">
+            <Toaster position="top-right" theme="dark" richColors />
+            
+            <AnimatePresence>
+                {(isLoggingOut || isNavigating) && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-md"
+                    >
+                        <div className="text-center">
+                            <div className="relative mx-auto mb-6 h-20 w-20">
+                                <div className="absolute inset-0 animate-spin rounded-full border-4 border-indigo-500/20 border-t-indigo-500"></div>
+                                <div className="absolute inset-4 animate-pulse rounded-full bg-indigo-500/20 flex items-center justify-center">
+                                    <Sparkles className="h-6 w-6 text-indigo-400" />
+                                </div>
+                            </div>
+                            <h2 className="text-xl font-bold text-white tracking-tight animate-pulse">
+                                {isLoggingOut ? 'Logging Out...' : 'Loading MarketAI...'}
+                            </h2>
+                            <p className="text-sm text-gray-500 mt-2 uppercase tracking-[0.2em] font-black">
+                                {isLoggingOut ? 'Securely Ending Session' : 'Magic in Progress'}
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {confirmingLogout && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.95 }}
+                            className="bg-[#121217] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+                        >
+                            <div className="flex items-center space-x-3 mb-4">
+                                <div className="p-2 bg-red-500/10 rounded-full">
+                                    <AlertTriangle className="h-6 w-6 text-red-500" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">Log Out?</h3>
+                            </div>
+                            <p className="text-gray-400 text-sm mb-6">Are you sure you want to end your current session?</p>
+                            <div className="flex space-x-3">
+                                <button
+                                    onClick={() => setConfirmingLogout(false)}
+                                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg text-sm font-medium transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmLogout}
+                                    className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition"
+                                >
+                                    Confirm Logout
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#121217]/50 backdrop-blur-xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
@@ -77,23 +174,22 @@ export default function Authenticated({
                                         </span>
                                     </Dropdown.Trigger>
 
-                                    <Dropdown.Content contentClasses="py-1 bg-[#1a1a20] border border-white/10">
+                                    <Dropdown.Content>
                                         <Dropdown.Link
                                             href={route('profile.edit')}
-                                            className="flex items-center space-x-2 text-gray-300 hover:bg-white/5"
+                                            className="flex items-center space-x-2 py-3"
                                         >
                                             <User className="h-4 w-4" />
-                                            <span>Profile</span>
+                                            <span className="font-medium">Profile Settings</span>
                                         </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                            className="flex items-center space-x-2 text-red-400 hover:bg-red-500/10"
+                                        <div className="border-t border-white/5 my-1" />
+                                        <button
+                                            onClick={handleLogout}
+                                            className="flex w-full items-center space-x-2 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                                         >
                                             <LogOut className="h-4 w-4" />
-                                            <span>Log Out</span>
-                                        </Dropdown.Link>
+                                            <span className="font-bold">Log Out</span>
+                                        </button>
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
@@ -175,14 +271,12 @@ export default function Authenticated({
                             >
                                 Profile
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                method="post"
-                                href={route('logout')}
-                                as="button"
-                                className="text-red-400"
+                            <button
+                                onClick={handleLogout}
+                                className="flex w-full items-center px-4 py-3 text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors"
                             >
                                 Log Out
-                            </ResponsiveNavLink>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -196,7 +290,15 @@ export default function Authenticated({
                 </header>
             )}
 
-            <main>{children}</main>
+            <main>
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                    {children}
+                </motion.div>
+            </main>
 
             <Footer />
         </div>

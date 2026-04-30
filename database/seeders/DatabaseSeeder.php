@@ -13,12 +13,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Demo Recruiter',
-            'email' => 'demo@marketai.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('demo123456'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'demo@marketai.com'],
+            [
+                'name' => 'Demo Recruiter',
+                'password' => \Illuminate\Support\Facades\Hash::make('demo123456'),
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

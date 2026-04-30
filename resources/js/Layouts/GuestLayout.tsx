@@ -2,10 +2,12 @@ import Footer from '@/Components/Footer';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { PropsWithChildren } from 'react';
+import { Toaster } from 'sonner';
 
 export default function Guest({ children }: PropsWithChildren) {
     return (
         <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-[#0a0a0c] pt-6 sm:justify-center sm:pt-0">
+            <Toaster position="top-right" theme="dark" richColors />
             {/* Background Decor */}
             <div className="absolute left-[-10%] top-[-10%] h-[80%] w-[40%] rounded-full bg-indigo-600/10 blur-[120px]" />
             <div className="absolute bottom-[-10%] right-[-10%] h-[80%] w-[40%] rounded-full bg-purple-600/10 blur-[120px]" />
