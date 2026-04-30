@@ -20,6 +20,25 @@ export default function Login({ status, canResetPassword }: { status?: string; c
         setTheme(localStorage.getItem('theme') || 'dark');
     }, []);
 
+    const [shouldSubmitDemo, setShouldSubmitDemo] = useState(false);
+
+    const handleDemoLogin = () => {
+        setData((prev) => ({
+            ...prev,
+            email: 'demo@marketai.com',
+            password: 'demo123456',
+            remember: true,
+        }));
+        setShouldSubmitDemo(true);
+    };
+
+    useEffect(() => {
+        if (shouldSubmitDemo) {
+            submit({ preventDefault: () => {} } as any);
+            setShouldSubmitDemo(false);
+        }
+    }, [shouldSubmitDemo]);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -180,7 +199,7 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                     <span className="ms-2 text-sm text-gray-500">Remember me</span>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 space-y-4">
                     <PrimaryButton 
                         className="w-full justify-center py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 text-lg group" 
                         disabled={processing}
@@ -188,6 +207,31 @@ export default function Login({ status, canResetPassword }: { status?: string; c
                         <span>Sign In</span>
                         <LogIn className="ms-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </PrimaryButton>
+
+                    <div className="relative py-4">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className={`w-full border-t ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`} />
+                        </div>
+                        <div className="relative flex justify-center text-[10px] uppercase font-black tracking-[0.2em]">
+                            <span className={`px-4 ${theme === 'dark' ? 'bg-[#1a1a24] text-gray-500' : 'bg-white text-gray-400'}`}>
+                                Quick Access
+                            </span>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleDemoLogin}
+                        disabled={processing}
+                        className={`flex w-full items-center justify-center space-x-3 rounded-xl border px-6 py-4 font-bold transition-all active:scale-[0.98] ${
+                            theme === 'dark'
+                            ? 'border-indigo-500/30 bg-indigo-500/5 text-indigo-400 hover:bg-indigo-500/10'
+                            : 'border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                        }`}
+                    >
+                        <Sparkles className="h-5 w-5" />
+                        <span>Login with Demo Account</span>
+                    </button>
                 </div>
 
                 <p className="text-center text-sm text-gray-500">

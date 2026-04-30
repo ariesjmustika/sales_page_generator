@@ -14,6 +14,11 @@ import {
     Trash2,
     X,
     Zap,
+    Home,
+    User,
+    Settings,
+    Sun,
+    Moon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -32,7 +37,27 @@ export default function Dashboard({
     salesPages,
 }: PageProps<{ salesPages: SalesPage[] }>) {
     const [deleteUuid, setDeleteUuid] = useState<string | null>(null);
+    const [theme, setTheme] = useState('dark');
     const [loadingStep, setLoadingStep] = useState(0);
+    const [showUserMenu, setShowUserMenu] = useState(false);
+
+    useEffect(() => {
+        const handleThemeChange = () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+        };
+        handleThemeChange();
+        window.addEventListener('theme-changed', handleThemeChange);
+        return () => window.removeEventListener('theme-changed', handleThemeChange);
+    }, []);
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [theme]);
     const loadingMessages = [
         'Analyzing your product details...',
         'Crafting high-converting headlines...',
@@ -42,7 +67,7 @@ export default function Dashboard({
         'Finalizing your premium sales page...',
     ];
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, processing, reset, errors } = useForm({
         product_name: '',
         target_audience: '',
         product_description: '',
@@ -80,11 +105,43 @@ export default function Dashboard({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Manual validation checks to match Login behavior
+        if (!data.product_name) {
+            toast.error('Product Name is required!');
+            return;
+        }
+        if (!data.target_audience) {
+            toast.error('Target Audience is required!');
+            return;
+        }
+        if (!data.product_description) {
+            toast.error('Product Description is required!');
+            return;
+        }
+        if (!data.price) {
+            toast.error('Price is required!');
+            return;
+        }
+        if (!data.usp) {
+            toast.error('Unique Selling Point is required!');
+            return;
+        }
+        // Check features
+        const emptyFeatureIndex = data.features.findIndex(f => !f.trim());
+        if (emptyFeatureIndex !== -1) {
+            toast.error(`Key Feature #${emptyFeatureIndex + 1} cannot be empty!`);
+            return;
+        }
+
         post(route('sales-pages.store'), {
             onSuccess: () => {
                 toast.success('Sales Page is being crafted by AI!');
                 reset();
             },
+            onError: () => {
+                toast.error('Please fix the errors in the form.');
+            }
         });
     };
 
@@ -260,10 +317,25 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="w-full rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+                                                className={`w-full rounded-2xl border px-5 py-4 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400 ${
+                                                    theme === 'dark' 
+                                                    ? `dark:bg-white/5 dark:text-white ${errors.product_name ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                    : `bg-slate-50 text-slate-900 ${errors.product_name ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                                }`}
                                                 placeholder="e.g. SaaS Pro Max"
-                                                required
+                                               
                                             />
+                                            <AnimatePresence>
+                                                {errors.product_name && (
+                                                    <motion.p 
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="mt-1 text-xs font-bold text-red-500"
+                                                    >
+                                                        {errors.product_name}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                         <div className="space-y-2">
                                             <label className="flex items-center space-x-2 text-sm font-bold uppercase tracking-widest text-gray-500">
@@ -279,10 +351,25 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="w-full rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+                                                className={`w-full rounded-2xl border px-5 py-4 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400 ${
+                                                    theme === 'dark' 
+                                                    ? `dark:bg-white/5 dark:text-white ${errors.target_audience ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                    : `bg-slate-50 text-slate-900 ${errors.target_audience ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                                }`}
                                                 placeholder="e.g. Freelance Designers"
-                                                required
+                                               
                                             />
+                                            <AnimatePresence>
+                                                {errors.target_audience && (
+                                                    <motion.p 
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="mt-1 text-xs font-bold text-red-500"
+                                                    >
+                                                        {errors.target_audience}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
 
@@ -298,10 +385,25 @@ export default function Dashboard({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="min-h-[120px] w-full rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+                                            className={`min-h-[120px] w-full rounded-2xl border px-5 py-4 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400 ${
+                                                theme === 'dark' 
+                                                ? `dark:bg-white/5 dark:text-white ${errors.product_description ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                : `bg-slate-50 text-slate-900 ${errors.product_description ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                            }`}
                                             placeholder="What does your product do?"
-                                            required
+                                           
                                         />
+                                        <AnimatePresence>
+                                            {errors.product_description && (
+                                                <motion.p 
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="mt-1 text-xs font-bold text-red-500"
+                                                >
+                                                    {errors.product_description}
+                                                </motion.p>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
 
                                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -319,9 +421,25 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="w-full rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+                                                className={`w-full rounded-2xl border px-5 py-4 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400 ${
+                                                    theme === 'dark' 
+                                                    ? `dark:bg-white/5 dark:text-white ${errors.price ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                    : `bg-slate-50 text-slate-900 ${errors.price ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                                }`}
                                                 placeholder="e.g. $49/month"
+                                               
                                             />
+                                            <AnimatePresence>
+                                                {errors.price && (
+                                                    <motion.p 
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="mt-1 text-xs font-bold text-red-500"
+                                                    >
+                                                        {errors.price}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                         <div className="space-y-2">
                                             <label className="flex items-center space-x-2 text-sm font-bold uppercase tracking-widest text-gray-500">
@@ -335,7 +453,11 @@ export default function Dashboard({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="w-full appearance-none rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500"
+                                                className={`w-full appearance-none rounded-2xl border px-5 py-4 outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${
+                                                    theme === 'dark' 
+                                                    ? `dark:bg-white/5 dark:text-white ${errors.tone ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                    : `bg-slate-50 text-slate-900 ${errors.tone ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                                }`}
                                             >
                                                 <option value="professional" className="dark:bg-[#1a1a24] bg-white">Professional</option>
                                                 <option value="persuasive" className="dark:bg-[#1a1a24] bg-white">Persuasive</option>
@@ -344,6 +466,17 @@ export default function Dashboard({
                                                 <option value="friendly" className="dark:bg-[#1a1a24] bg-white">Friendly</option>
                                                 <option value="minimalist" className="dark:bg-[#1a1a24] bg-white">Minimalist</option>
                                             </select>
+                                            <AnimatePresence>
+                                                {errors.tone && (
+                                                    <motion.p 
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="mt-1 text-xs font-bold text-red-500"
+                                                    >
+                                                        {errors.tone}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
 
@@ -357,9 +490,25 @@ export default function Dashboard({
                                             onChange={(e) =>
                                                 setData('usp', e.target.value)
                                             }
-                                            className="min-h-[80px] w-full rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400"
+                                            className={`min-h-[80px] w-full rounded-2xl border px-5 py-4 outline-none transition-all focus:ring-2 focus:ring-indigo-500 placeholder:text-gray-400 ${
+                                                theme === 'dark' 
+                                                ? `dark:bg-white/5 dark:text-white ${errors.usp ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                : `bg-slate-50 text-slate-900 ${errors.usp ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                            }`}
                                             placeholder="What makes your product special?"
+                                           
                                         />
+                                        <AnimatePresence>
+                                            {errors.usp && (
+                                                <motion.p 
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="mt-1 text-xs font-bold text-red-500"
+                                                >
+                                                    {errors.usp}
+                                                </motion.p>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
 
                                     <div className="space-y-4">
@@ -392,8 +541,12 @@ export default function Dashboard({
                                                                     e.target.value,
                                                                 )
                                                             }
-                                                            className="w-full rounded-2xl border dark:border-white/10 border-slate-200 dark:bg-white/5 bg-slate-50 px-5 py-4 pr-12 dark:text-white text-slate-900 outline-none transition-all focus:ring-2 focus:ring-indigo-500"
-                                                            required
+                                                            className={`w-full rounded-2xl border px-5 py-4 pr-12 outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${
+                                                                theme === 'dark' 
+                                                                ? `dark:bg-white/5 dark:text-white ${errors[`features.${index}`] ? 'border-red-500/50 bg-red-500/5 ring-1 ring-red-500/20' : 'border-white/10'}` 
+                                                                : `bg-slate-50 text-slate-900 ${errors[`features.${index}`] ? 'border-red-300 bg-red-50' : 'border-slate-200'}`
+                                                            }`}
+                                                           
                                                         />
                                                         {data.features.length > 1 && (
                                                             <button
@@ -404,6 +557,17 @@ export default function Dashboard({
                                                                 <X className="h-4 w-4" />
                                                             </button>
                                                         )}
+                                                        <AnimatePresence>
+                                                            {errors[`features.${index}`] && (
+                                                                <motion.p 
+                                                                    initial={{ opacity: 0, y: -10 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    className="mt-1 text-xs font-bold text-red-500"
+                                                                >
+                                                                    {errors[`features.${index}`]}
+                                                                </motion.p>
+                                                            )}
+                                                        </AnimatePresence>
                                                     </div>
                                                 ),
                                             )}
@@ -431,7 +595,8 @@ export default function Dashboard({
                                             ) : (
                                                 <>
                                                     <Sparkles className="h-5 w-5" />
-                                                    <span>Craft My Sales Page</span>
+                                                    <span className="hidden sm:inline">Craft My Sales Page</span>
+                                                    <span className="sm:hidden">Generate Page</span>
                                                 </>
                                             )}
                                         </button>
@@ -509,6 +674,94 @@ export default function Dashboard({
                     </div>
                 </div>
             </div>
+
+            {/* Global Bottom Navigation Bar */}
+            <div className="lg:hidden fixed bottom-6 left-0 right-0 z-[100] px-4">
+                <AnimatePresence>
+                    {/* User Menu Sheet (Right) */}
+                    {showUserMenu && (
+                        <>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowUserMenu(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+                            <motion.div 
+                                initial={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                animate={{ y: 0, opacity: 1, scale: 1 }} 
+                                exit={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                className={`absolute bottom-24 right-4 w-64 rounded-3xl border p-3 shadow-2xl ${
+                                    theme === 'dark' ? 'border-white/10 bg-[#1a1a24] text-white' : 'border-indigo-100 bg-white text-slate-900'
+                                }`}
+                            >
+                                <div className="space-y-1">
+                                    <Link href={route('profile.edit')} className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-indigo-500/10">
+                                        <User className="h-5 w-5 text-indigo-400" />
+                                        <span className="font-bold text-sm">Profile Settings</span>
+                                    </Link>
+                                    <button 
+                                        onClick={() => { 
+                                            const newTheme = theme === 'dark' ? 'light' : 'dark';
+                                            localStorage.setItem('theme', newTheme);
+                                            window.dispatchEvent(new Event('theme-changed'));
+                                            setShowUserMenu(false); 
+                                        }} 
+                                        className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-indigo-500/10"
+                                    >
+                                        {theme === 'dark' ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-indigo-500" />}
+                                        <span className="font-bold text-sm">Switch to {theme === 'dark' ? 'Light' : 'Dark'}</span>
+                                    </button>
+                                    <div className="h-px bg-white/5 my-1" />
+                                    <Link method="post" href={route('logout')} as="button" className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-red-500/10 text-red-500">
+                                        <Trash2 className="h-5 w-5" />
+                                        <span className="font-bold text-sm">Log Out</span>
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+
+                <motion.div 
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className={`relative mx-auto flex max-w-md items-center justify-between rounded-[2.5rem] border p-2 shadow-2xl backdrop-blur-2xl ${
+                        theme === 'dark' 
+                        ? 'border-white/10 bg-black/60 shadow-black/40' 
+                        : 'border-indigo-100 bg-white/80 shadow-indigo-600/10'
+                    }`}
+                >
+                    {/* Home (Active) */}
+                    <div
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 ${
+                            theme === 'dark' ? 'bg-white/5 text-indigo-400' : 'bg-indigo-50 text-indigo-600 shadow-sm shadow-indigo-600/10'
+                        }`}
+                    >
+                        <Home className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Home</span>
+                    </div>
+
+                    {/* Center Action: Create New */}
+                    <div className="relative px-2">
+                        <button
+                            onClick={() => {
+                                document.getElementById('product-form')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600 text-white shadow-xl shadow-indigo-600/40 transition-all active:scale-90"
+                        >
+                            <Plus className="h-8 w-8" />
+                        </button>
+                    </div>
+
+                    {/* User Menu Toggle */}
+                    <button
+                        onClick={() => setShowUserMenu(!showUserMenu)}
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 transition-all active:scale-90 ${
+                            theme === 'dark' ? 'text-gray-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <User className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Account</span>
+                    </button>
+                </motion.div>
+            </div>
+
         </AuthenticatedLayout>
     );
 }

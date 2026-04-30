@@ -23,9 +23,16 @@ import {
     Trash2,
     X,
     Zap,
+    Home as HomeIcon,
+    Share2,
+    Sun,
+    Moon,
+    User,
+    Sparkles,
+    LogOut,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 
 interface Props {
     salesPage: {
@@ -78,11 +85,30 @@ export default function Preview({ salesPage }: Props) {
         'preview' | 'content' | 'conversion'
     >('preview');
     const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
-    const [theme, setTheme] = useState('dark');
+    const [theme, setTheme] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') || 'dark';
+        }
+        return 'dark';
+    });
 
     useEffect(() => {
-        setTheme(localStorage.getItem('theme') || 'dark');
+        const handleThemeChange = () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+        };
+        handleThemeChange();
+        window.addEventListener('theme-changed', handleThemeChange);
+        return () => window.removeEventListener('theme-changed', handleThemeChange);
     }, []);
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [theme]);
 
 
     // Auto-detect viewport on mount
@@ -94,6 +120,14 @@ export default function Preview({ salesPage }: Props) {
     const [isRegenerating, setIsRegenerating] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showActionMenu, setShowActionMenu] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
+
+    const handleLogout = () => {
+        setShowLogoutModal(true);
+        setShowUserMenu(false);
+    };
 
     // AI Image Refiner Logic
     const magicPrompt =
@@ -241,7 +275,7 @@ export default function Preview({ salesPage }: Props) {
 
     const handleDelete = () => {
         router.delete(route('sales-pages.destroy', salesPage.uuid), {
-            onFinish: () => {
+            onSuccess: () => {
                 setShowDeleteModal(false);
             },
         });
@@ -284,9 +318,16 @@ export default function Preview({ salesPage }: Props) {
 
     const handleTextClick = (e: React.MouseEvent, section: string) => {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        // Clamp the toolbar position to keep it within the screen width
+        // The toolbar is roughly 320px wide, so we need 160px on each side
+        const toolbarWidth = 320;
+        const halfWidth = toolbarWidth / 2;
+        const clampedX = Math.max(halfWidth + 10, Math.min(window.innerWidth - halfWidth - 10, centerX));
+
         setToolbarPos({
-            top: rect.top + window.scrollY - 60,
-            left: rect.left + rect.width / 2,
+            top: rect.top + window.scrollY - 70,
+            left: clampedX,
         });
         setSelectedSection(section);
         setSelectedText((e.currentTarget as HTMLElement).innerText);
@@ -644,8 +685,9 @@ export default function Preview({ salesPage }: Props) {
 
     return (
         <AuthenticatedLayout
+            hideNav={true}
             header={
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Link
                             href={route('dashboard')}
@@ -653,13 +695,13 @@ export default function Preview({ salesPage }: Props) {
                         >
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
-                        <div>
-                            <h2 className={`text-xl font-bold leading-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                        <div className="min-w-0 flex-1">
+                            <h2 className={`truncate text-lg sm:text-xl font-bold leading-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {salesPage.product_name}
                             </h2>
-                            <div className="flex items-center space-x-2">
-                                <p className="text-xs text-gray-500">
-                                    Draft saved{' '}
+                            <div className="flex items-center space-x-2 whitespace-nowrap">
+                                <p className="text-[10px] sm:text-xs font-medium text-gray-500">
+                                    Saved:{' '}
                                     {new Date(
                                         salesPage.created_at,
                                     ).toLocaleDateString()}
@@ -667,19 +709,25 @@ export default function Preview({ salesPage }: Props) {
                                 {isSaving && (
                                     <span className="flex animate-pulse items-center space-x-1 text-[10px] text-indigo-500">
                                         <Save className="h-3 w-3" />
-                                        <span>Saving...</span>
+                                        <span className="hidden sm:inline">Saving...</span>
                                     </span>
                                 )}
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center space-x-3">
+                    
+                    <div className="hidden lg:flex items-center justify-end gap-2 sm:gap-3">
                         <button
                             onClick={() => setShowDeleteModal(true)}
-                            className="rounded-xl p-2.5 text-gray-500 transition-all hover:bg-red-500/10 hover:text-red-500"
+                            className={`flex items-center space-x-2 rounded-xl border px-4 py-2.5 sm:px-6 text-xs sm:text-sm font-bold shadow-lg transition-all active:scale-95 ${
+                                theme === 'dark' 
+                                ? 'border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20' 
+                                : 'border-red-200 bg-white text-red-600 hover:bg-red-50 shadow-red-500/10'
+                            }`}
                             title="Delete Page"
                         >
-                            <Trash2 className="h-5 w-5" />
+                            <Trash2 className="h-4 w-4" />
+                            <span>Delete</span>
                         </button>
                         <button
                             onClick={() => {
@@ -687,32 +735,25 @@ export default function Preview({ salesPage }: Props) {
                                 navigator.clipboard.writeText(url);
                                 toast.success('Public link copied!');
                             }}
-                            className={`flex items-center space-x-2 rounded-xl border px-5 py-2.5 text-sm font-bold shadow-lg transition-all ${
+                            className={`flex items-center space-x-2 rounded-xl border px-4 py-2.5 sm:px-6 text-xs sm:text-sm font-bold shadow-lg transition-all active:scale-95 ${
                                 theme === 'dark' 
-                                ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' 
-                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20' 
+                                : 'border-indigo-600 bg-white text-indigo-600 hover:bg-indigo-50 shadow-indigo-600/10'
                             }`}
                         >
                             <Copy className="h-4 w-4" />
-                            <span>Share Link</span>
-                        </button>
-                        <button
-                            onClick={() => window.print()}
-                            className={`flex items-center space-x-2 rounded-xl border px-5 py-2.5 text-sm font-bold shadow-lg transition-all ${
-                                theme === 'dark' 
-                                ? 'border-white/10 bg-white/5 text-white hover:bg-white/10' 
-                                : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                            }`}
-                        >
-                            <FileText className="h-4 w-4" />
-                            <span>PDF</span>
+                            <span>Share</span>
                         </button>
                         <button
                             onClick={downloadHtml}
-                            className="flex items-center space-x-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-indigo-700"
+                            className={`flex items-center space-x-2 rounded-xl border px-4 py-2.5 sm:px-6 text-xs sm:text-sm font-black shadow-lg transition-all active:scale-95 ${
+                                theme === 'dark' 
+                                ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20' 
+                                : 'border-indigo-600 bg-white text-indigo-600 hover:bg-indigo-50 shadow-indigo-600/10'
+                            }`}
                         >
                             <Download className="h-4 w-4" />
-                            <span>Export Site</span>
+                            <span>Export</span>
                         </button>
                     </div>
                 </div>
@@ -739,7 +780,6 @@ export default function Preview({ salesPage }: Props) {
                     nav, header:not(.printable-content header) { display: none !important; }
                 }
             `}</style>
-            <Toaster position="top-right" theme={theme === 'dark' ? 'dark' : 'light'} />
 
             {/* Custom Delete Modal */}
             <AnimatePresence>
@@ -795,6 +835,61 @@ export default function Preview({ salesPage }: Props) {
                 )}
             </AnimatePresence>
 
+            {/* Custom Logout Modal */}
+            <AnimatePresence>
+                {showLogoutModal && (
+                    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowLogoutModal(false)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className={`relative w-full max-w-md rounded-[2rem] border p-8 shadow-2xl transition-colors duration-500 ${
+                                theme === 'dark' 
+                                ? 'bg-[#1a1a24] border-white/10' 
+                                : 'bg-white border-slate-100 shadow-indigo-500/10'
+                            }`}
+                        >
+                            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/10">
+                                <LogOut className="h-8 w-8 text-indigo-500" />
+                            </div>
+                            <h3 className={`mb-2 text-center text-2xl font-bold tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                End Session?
+                            </h3>
+                            <p className="mb-8 text-center text-gray-500">
+                                Are you sure you want to log out of MarketAI?
+                            </p>
+                            <div className="flex space-x-3">
+                                <button
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className={`flex-1 rounded-2xl px-6 py-4 font-bold transition-all ${
+                                        theme === 'dark' 
+                                        ? 'bg-white/5 text-white hover:bg-white/10' 
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    Stay
+                                </button>
+                                <Link
+                                    href={route('logout')}
+                                    method="post"
+                                    as="button"
+                                    className="flex-1 rounded-2xl bg-indigo-600 px-6 py-4 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700"
+                                >
+                                    Log Out
+                                </Link>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             {/* Floating Magic Toolbar */}
             <AnimatePresence>
                 {toolbarPos && (
@@ -802,61 +897,41 @@ export default function Preview({ salesPage }: Props) {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className={`z-[100] flex items-center justify-between rounded-[2rem] border p-2 shadow-2xl backdrop-blur-xl transition-all duration-500 fixed bottom-6 left-1/2 -translate-x-1/2 w-[92vw] max-w-[400px] lg:absolute lg:bottom-auto lg:w-max lg:max-w-none ${
+                            theme === 'dark' 
+                            ? 'border-white/10 bg-[#1a1a24]/95' 
+                            : 'border-indigo-100 bg-white/95'
+                        }`}
                         style={{
-                            position: 'absolute',
-                            top: toolbarPos.top,
-                            left: toolbarPos.left,
+                            top: typeof window !== 'undefined' && window.innerWidth >= 1024 ? toolbarPos.top : undefined,
+                            left: typeof window !== 'undefined' && window.innerWidth >= 1024 ? toolbarPos.left : '50%',
                             transform: 'translateX(-50%)',
                         }}
-                        className={`z-[100] flex items-center space-x-1 rounded-2xl border p-1.5 shadow-2xl backdrop-blur-xl transition-colors duration-500 ${
-                            theme === 'dark' 
-                            ? 'border-white/10 bg-[#1a1a24]/90' 
-                            : 'border-indigo-100 bg-white/90'
-                        }`}
                     >
-                        <div className="mr-1 flex items-center border-r border-white/5 pr-1">
-                            <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => formatText('bold')}
-                                className={`rounded-xl p-2 transition-all ${theme === 'dark' ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'}`}
-                                title="Bold"
-                            >
-                                <span className="font-bold">B</span>
-                            </button>
-                            <button
-                                onMouseDown={(e) => e.preventDefault()}
-                                onClick={() => formatText('italic')}
-                                className={`rounded-xl p-2 transition-all ${theme === 'dark' ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'}`}
-                                title="Italic"
-                            >
-                                <span className="italic">I</span>
-                            </button>
-                        </div>
-
-                        <div className="flex items-center space-x-1">
+                        <div className="flex flex-1 items-center justify-around sm:justify-start sm:space-x-1 px-1">
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => handleMagicRewrite('shorten')}
                                 disabled={isMagicLoading}
-                                className="rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
+                                className="rounded-2xl px-3 py-3 lg:py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
                             >
-                                {isMagicLoading ? '...' : 'Shorten'}
+                                {isMagicLoading ? '...' : 'Short'}
                             </button>
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => handleMagicRewrite('persuasive')}
                                 disabled={isMagicLoading}
-                                className="rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
+                                className="rounded-2xl px-3 py-3 lg:py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
                             >
-                                Persuasive
+                                Sell
                             </button>
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
                                 onClick={() => handleMagicRewrite('witty')}
                                 disabled={isMagicLoading}
-                                className="rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
+                                className="rounded-2xl px-3 py-3 lg:py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
                             >
-                                Witty
+                                Fun
                             </button>
                             <button
                                 onMouseDown={(e) => e.preventDefault()}
@@ -864,50 +939,44 @@ export default function Preview({ salesPage }: Props) {
                                     handleMagicRewrite('professional')
                                 }
                                 disabled={isMagicLoading}
-                                className="rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
+                                className="rounded-2xl px-3 py-3 lg:py-2 text-[10px] font-black uppercase tracking-widest text-indigo-400 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
                             >
                                 Pro
                             </button>
                         </div>
+
+                        <div className="mx-2 flex items-center border-x border-white/5 px-2 lg:px-3">
+                            <button
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => formatText('bold')}
+                                className={`rounded-2xl p-3 lg:p-2 transition-all ${theme === 'dark' ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'}`}
+                                title="Bold"
+                            >
+                                <span className="text-sm lg:text-base font-bold">B</span>
+                            </button>
+                            <button
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => formatText('italic')}
+                                className={`rounded-2xl p-3 lg:p-2 transition-all ${theme === 'dark' ? 'text-gray-300 hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'}`}
+                                title="Italic"
+                            >
+                                <span className="text-sm lg:text-base italic">I</span>
+                            </button>
+                        </div>
+
                         <button
                             onClick={() => setToolbarPos(null)}
-                            className="rounded-xl p-2 text-gray-500 transition-all hover:bg-red-500/10 hover:text-red-400"
+                            className="rounded-2xl p-3 lg:p-2 text-gray-500 transition-all hover:bg-red-500/10 hover:text-red-400"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5 lg:h-4 lg:w-4" />
                         </button>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <div className={`min-h-screen transition-colors duration-500 py-8 ${theme === 'dark' ? 'bg-[#0a0a0c]' : 'bg-slate-50'}`}>
-                <div className="max-[1600px] mx-auto sm:px-6 lg:px-8">
-                    <div
-                        className={`relative grid grid-cols-1 gap-8 lg:grid-cols-5`}
-                    >
-                        {/* Mobile Sticky Header */}
-                        <div className={`no-print sticky left-0 right-0 top-0 z-[110] flex items-center justify-between border-b p-4 backdrop-blur-md lg:hidden transition-colors ${
-                            theme === 'dark' ? 'border-white/10 bg-[#0a0a0c]/80' : 'border-slate-200 bg-white/80 text-slate-900'
-                        }`}>
-                            <div className="flex items-center space-x-3">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-                                    <span className="text-sm font-bold text-white">
-                                        M
-                                    </span>
-                                </div>
-                                <span className={`text-sm font-bold tracking-tight transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                                    MarketAI Editor
-                                </span>
-                            </div>
-                            <button
-                                onClick={() => setShowSidebar(!showSidebar)}
-                                className="flex items-center space-x-2 rounded-xl bg-indigo-600 px-4 py-2 text-white shadow-lg transition-transform active:scale-95"
-                            >
-                                <Layout className="h-4 w-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">
-                                    Menu
-                                </span>
-                            </button>
-                        </div>
+            <div className={`min-h-screen transition-colors duration-500 py-8 ${theme === 'dark' ? 'bg-[#0a0a0c]' : 'bg-slate-50'} overflow-x-hidden`}>
+                <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className={`relative grid grid-cols-1 gap-8 lg:grid-cols-5`}>
 
                         {/* Control Panel */}
                             <div className={`no-print fixed inset-0 z-[200] space-y-6 p-6 backdrop-blur-2xl transition-all duration-300 lg:relative lg:z-0 lg:col-span-1 lg:block lg:bg-transparent lg:p-0 lg:backdrop-blur-none ${
@@ -948,7 +1017,11 @@ export default function Preview({ salesPage }: Props) {
                                         onClick={() =>
                                             setActiveTab('conversion')
                                         }
-                                        className={`flex w-full items-center space-x-3 rounded-2xl px-4 py-3.5 transition-all ${activeTab === 'conversion' ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 shadow-inner' : 'text-gray-500 hover:bg-white/5'}`}
+                                        className={`flex w-full items-center space-x-3 rounded-2xl px-4 py-3.5 transition-all ${
+                                            activeTab === 'conversion' 
+                                            ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 shadow-inner' 
+                                            : `text-gray-500 ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-slate-100'}`
+                                        }`}
                                     >
                                         <Zap className="h-5 w-5" />
                                         <span className="text-sm font-bold">
@@ -957,7 +1030,11 @@ export default function Preview({ salesPage }: Props) {
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('content')}
-                                        className={`flex w-full items-center space-x-3 rounded-2xl px-4 py-3.5 transition-all ${activeTab === 'content' ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 shadow-inner' : 'text-gray-500 hover:bg-white/5'}`}
+                                        className={`flex w-full items-center space-x-3 rounded-2xl px-4 py-3.5 transition-all ${
+                                            activeTab === 'content' 
+                                            ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 shadow-inner' 
+                                            : `text-gray-500 ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-slate-100'}`
+                                        }`}
                                     >
                                         <Globe className="h-5 w-5" />
                                         <span className="text-sm font-bold">
@@ -967,7 +1044,7 @@ export default function Preview({ salesPage }: Props) {
                                 </div>
 
                                 {activeTab === 'preview' && (
-                                    <div className="mt-8 hidden border-t border-white/5 pt-8 lg:block">
+                                    <div className={`mt-8 hidden border-t pt-8 lg:block ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}>
                                         <h3 className="mb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                                             Viewport
                                         </h3>
@@ -999,17 +1076,19 @@ export default function Preview({ salesPage }: Props) {
                                 )}
 
                                 {activeTab === 'preview' && (
-                                    <div className="mt-8 border-t border-white/5 pt-8">
+                                    <div className={`mt-8 border-t pt-8 ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}>
                                         <h3 className="mb-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                                             Page Sections
                                         </h3>
                                         <div className="space-y-3">
-                                            <div className="group flex items-center justify-between rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition-all hover:border-indigo-500/30">
+                                            <div className={`group flex items-center justify-between rounded-2xl border p-4 transition-all ${
+                                                theme === 'dark' ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50'
+                                            } hover:border-indigo-500/30`}>
                                                 <div className="flex items-center space-x-3">
                                                     <div className="rounded-lg bg-indigo-500/10 p-2 text-indigo-400">
                                                         <HelpCircle className="h-4 w-4" />
                                                     </div>
-                                                    <span className="text-sm font-bold text-gray-300">
+                                                    <span className={`text-sm font-bold ${theme === 'dark' ? 'text-gray-300' : 'text-slate-700'}`}>
                                                         FAQ Section
                                                     </span>
                                                 </div>
@@ -1040,7 +1119,7 @@ export default function Preview({ salesPage }: Props) {
                                                             },
                                                         );
                                                     }}
-                                                    className={`relative h-6 w-12 rounded-full transition-all ${salesPage.settings?.visible_sections?.faq ? 'bg-indigo-600' : 'bg-white/10'}`}
+                                                    className={`relative h-6 w-12 rounded-full transition-all ${salesPage.settings?.visible_sections?.faq ? 'bg-indigo-600' : (theme === 'dark' ? 'bg-white/10' : 'bg-slate-200')}`}
                                                 >
                                                     <div
                                                         className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${salesPage.settings?.visible_sections?.faq ? 'left-7' : 'left-1'}`}
@@ -1085,7 +1164,7 @@ export default function Preview({ salesPage }: Props) {
                                                             },
                                                         );
                                                     }}
-                                                    className={`relative h-6 w-12 rounded-full transition-all ${salesPage.settings?.visible_sections?.testimonials ? 'bg-purple-600' : 'bg-white/10'}`}
+                                                    className={`relative h-6 w-12 rounded-full transition-all ${salesPage.settings?.visible_sections?.testimonials ? 'bg-purple-600' : (theme === 'dark' ? 'bg-white/10' : 'bg-slate-200')}`}
                                                 >
                                                     <div
                                                         className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${salesPage.settings?.visible_sections?.testimonials ? 'left-7' : 'left-1'}`}
@@ -1190,7 +1269,9 @@ export default function Preview({ salesPage }: Props) {
                                         {viewport === 'mobile' && (
                                             <>
                                                 {/* Notch */}
-                                                <div className="absolute top-0 left-1/2 z-[120] hidden h-7 w-40 -translate-x-1/2 rounded-b-3xl bg-[#1a1a24] lg:block"></div>
+                                                <div className={`absolute top-0 left-1/2 z-[120] hidden h-7 w-40 -translate-x-1/2 rounded-b-3xl lg:block ${
+                                                    theme === 'dark' ? 'bg-[#1a1a24]' : 'bg-slate-200'
+                                                }`}></div>
 
                                                 {/* Status Bar */}
                                                 <div className="absolute left-0 right-0 top-2 z-[115] hidden justify-between px-10 lg:flex">
@@ -1221,14 +1302,20 @@ export default function Preview({ salesPage }: Props) {
                                         )}
 
                                         <div
-                                            className={`no-print flex items-center space-x-6 border-b border-gray-200 bg-gray-100 px-8 py-5 ${viewport === 'mobile' ? 'hidden' : ''}`}
+                                            className={`no-print flex items-center space-x-6 border-b px-8 py-5 transition-colors ${
+                                                viewport === 'mobile' ? 'hidden' : ''
+                                            } ${
+                                                theme === 'dark' ? 'border-white/5 bg-white/5' : 'border-slate-200 bg-slate-50'
+                                            }`}
                                         >
                                             <div className="flex space-x-2">
                                                 <div className="h-3.5 w-3.5 rounded-full bg-red-400" />
                                                 <div className="h-3.5 w-3.5 rounded-full bg-yellow-400" />
                                                 <div className="h-3.5 w-3.5 rounded-full bg-green-400" />
                                             </div>
-                                            <div className="flex flex-1 items-center justify-between rounded-xl border border-gray-200 bg-white px-5 py-2 text-[12px] text-gray-400">
+                                            <div className={`flex flex-1 items-center justify-between rounded-xl border px-5 py-2 text-[12px] transition-colors ${
+                                                theme === 'dark' ? 'border-white/10 bg-white/5 text-gray-400' : 'border-slate-200 bg-white text-slate-500'
+                                            }`}>
                                                 <span className="flex items-center space-x-2 font-medium tracking-tight">
                                                     <Globe className="h-4 w-4 opacity-30" />
                                                     <span>
@@ -1279,10 +1366,10 @@ export default function Preview({ salesPage }: Props) {
                                                                 'headline',
                                                             )
                                                         }
-                                                        className="absolute -right-12 top-0 rounded-full p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100"
+                                                        className="absolute -right-4 lg:-right-12 top-0 rounded-full p-2 lg:p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100 z-10"
                                                     >
                                                         <RefreshCw
-                                                            className={`h-5 w-5 ${isRegenerating === 'headline' ? 'animate-spin' : ''}`}
+                                                            className={`h-4 w-4 lg:h-5 lg:w-5 ${isRegenerating === 'headline' ? 'animate-spin' : ''}`}
                                                         />
                                                     </button>
                                                 </div>
@@ -1315,10 +1402,10 @@ export default function Preview({ salesPage }: Props) {
                                                                 'subheadline',
                                                             )
                                                         }
-                                                        className="absolute -right-12 top-0 rounded-full p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100"
+                                                        className="absolute -right-4 lg:-right-12 top-0 rounded-full p-2 lg:p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100 z-10"
                                                     >
                                                         <RefreshCw
-                                                            className={`h-5 w-5 ${isRegenerating === 'subheadline' ? 'animate-spin' : ''}`}
+                                                            className={`h-4 w-4 lg:h-5 lg:w-5 ${isRegenerating === 'subheadline' ? 'animate-spin' : ''}`}
                                                         />
                                                     </button>
                                                 </div>
@@ -1425,7 +1512,9 @@ export default function Preview({ salesPage }: Props) {
                                                             </button>
 
                                                             {/* Dropdown Menu */}
-                                                            <div className="invisible absolute right-0 top-full z-50 mt-2 w-48 rounded-2xl border border-white/10 bg-[#1a1a24] p-2 opacity-0 shadow-2xl transition-all group-hover/style:visible group-hover/style:opacity-100">
+                                                            <div className={`invisible absolute right-0 top-full z-50 mt-2 w-48 rounded-2xl border p-2 opacity-0 shadow-2xl transition-all group-hover/style:visible group-hover/style:opacity-100 ${
+                                                                theme === 'dark' ? 'border-white/10 bg-[#1a1a24]' : 'border-slate-200 bg-white'
+                                                            }`}>
                                                                 {[
                                                                     {
                                                                         id: 'cinematic',
@@ -1511,10 +1600,10 @@ export default function Preview({ salesPage }: Props) {
                                                                 'cta',
                                                             )
                                                         }
-                                                        className="absolute -right-12 top-1/2 -translate-y-1/2 rounded-full p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100"
+                                                        className="absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2 rounded-full p-2 lg:p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100 z-10"
                                                     >
                                                         <RefreshCw
-                                                            className={`h-5 w-5 ${isRegenerating === 'cta' ? 'animate-spin' : ''}`}
+                                                            className={`h-4 w-4 lg:h-5 lg:w-5 ${isRegenerating === 'cta' ? 'animate-spin' : ''}`}
                                                         />
                                                     </button>
                                                 </div>
@@ -1559,7 +1648,7 @@ export default function Preview({ salesPage }: Props) {
                                                                         'problem',
                                                                     )
                                                                 }
-                                                                className="absolute -right-10 top-0 rounded-full p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100"
+                                                                className="absolute -right-4 lg:-right-10 top-0 rounded-full p-2 lg:p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100 z-10"
                                                             >
                                                                 <RefreshCw
                                                                     className={`h-4 w-4 ${isRegenerating === 'problem' ? 'animate-spin' : ''}`}
@@ -1601,7 +1690,7 @@ export default function Preview({ salesPage }: Props) {
                                                                         'solution',
                                                                     )
                                                                 }
-                                                                className="absolute -right-10 top-0 rounded-full p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100"
+                                                                className="absolute -right-4 lg:-right-10 top-0 rounded-full p-2 lg:p-3 text-indigo-500 opacity-0 transition-all hover:bg-indigo-500/10 group-hover:opacity-100 z-10"
                                                             >
                                                                 <RefreshCw
                                                                     className={`h-4 w-4 ${isRegenerating === 'solution' ? 'animate-spin' : ''}`}
@@ -1692,7 +1781,7 @@ export default function Preview({ salesPage }: Props) {
                                                                                 newBenefits,
                                                                             );
                                                                         }}
-                                                                        className="no-print absolute -left-12 top-0 rounded-full p-3 text-red-500 opacity-0 transition-all hover:bg-red-500/10 group-hover/benefit:opacity-100"
+                                                                        className="no-print absolute left-0 lg:-left-12 top-0 rounded-full p-2 lg:p-3 text-red-500 opacity-0 transition-all hover:bg-red-500/10 group-hover/benefit:opacity-100 z-10"
                                                                     >
                                                                         <X className="h-4 w-4" />
                                                                     </button>
@@ -2190,12 +2279,9 @@ export default function Preview({ salesPage }: Props) {
                                                     Target CTA
                                                 </label>
                                                 <div className="flex rounded-2xl border border-white/10 bg-white/5 p-1">
-                                                    <button className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold text-white shadow-lg">
-                                                        WhatsApp Business
-                                                    </button>
-                                                    <button className="flex-1 px-4 py-3 text-xs font-bold text-gray-500 transition-colors hover:text-white">
-                                                        Email (Soon)
-                                                    </button>
+                                                    <div className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold text-white shadow-lg text-center">
+                                                        WhatsApp Business Active
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -2296,7 +2382,9 @@ export default function Preview({ salesPage }: Props) {
                                                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
                                                             {key}
                                                         </label>
-                                                        <div className="rounded-2xl bg-white/[0.02] p-6 italic">
+                                                        <div className={`rounded-2xl p-6 italic transition-colors ${
+                                                            theme === 'dark' ? 'bg-white/[0.02] text-gray-400' : 'bg-slate-50 text-slate-600'
+                                                        }`}>
                                                             {Array.isArray(
                                                                 value,
                                                             )
@@ -2375,6 +2463,142 @@ export default function Preview({ salesPage }: Props) {
             `,
                 }}
             />
+            {/* Mobile Bottom Navigation & Action System */}
+            <div className="lg:hidden fixed bottom-6 left-0 right-0 z-[100] px-4 no-print">
+                <AnimatePresence>
+                    {/* Action Menu Sheet (Center) */}
+                    {showActionMenu && (
+                        <>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowActionMenu(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+                            <motion.div 
+                                initial={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                animate={{ y: 0, opacity: 1, scale: 1 }} 
+                                exit={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                className={`absolute bottom-24 left-4 right-4 rounded-3xl border p-4 shadow-2xl ${
+                                    theme === 'dark' ? 'border-white/10 bg-[#1a1a24] text-white' : 'border-indigo-100 bg-white text-slate-900'
+                                }`}
+                            >
+                                <div className="space-y-2">
+                                    <button onClick={() => { downloadHtml(); setShowActionMenu(false); }} className="flex w-full items-center space-x-4 rounded-2xl p-4 transition-all active:scale-95 hover:bg-indigo-500/10">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-500"><Download className="h-6 w-6" /></div>
+                                        <div className="text-left"><div className="font-bold">Export Website</div><div className="text-[10px] opacity-60">Download HTML</div></div>
+                                    </button>
+                                    <button onClick={() => { const url = `${window.location.origin}/v/${salesPage.uuid}`; navigator.clipboard.writeText(url); toast.success('Link Copied!'); setShowActionMenu(false); }} className="flex w-full items-center space-x-4 rounded-2xl p-4 transition-all active:scale-95 hover:bg-indigo-500/10">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-500"><Share2 className="h-6 w-6" /></div>
+                                        <div className="text-left"><div className="font-bold">Share Link</div><div className="text-[10px] opacity-60">Copy public link</div></div>
+                                    </button>
+                                    <div className="h-px bg-white/5 my-2" />
+                                    <button onClick={() => { setShowDeleteModal(true); setShowActionMenu(false); }} className="flex w-full items-center space-x-4 rounded-2xl p-4 transition-all active:scale-95 hover:bg-red-500/10">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/20 text-red-500"><Trash2 className="h-6 w-6" /></div>
+                                        <div className="text-left"><div className="font-bold text-red-500">Delete Project</div><div className="text-[10px] text-red-500/60">Remove permanently</div></div>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+
+                    {/* User Menu Sheet (Right) */}
+                    {showUserMenu && (
+                        <>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowUserMenu(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+                            <motion.div 
+                                initial={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                animate={{ y: 0, opacity: 1, scale: 1 }} 
+                                exit={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                className={`absolute bottom-24 right-4 w-64 rounded-3xl border p-3 shadow-2xl ${
+                                    theme === 'dark' ? 'border-white/10 bg-[#1a1a24] text-white' : 'border-indigo-100 bg-white text-slate-900'
+                                }`}
+                            >
+                                <div className="space-y-1">
+                                    <Link href={route('profile.edit')} className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-indigo-500/10">
+                                        <User className="h-5 w-5 text-indigo-400" />
+                                        <span className="font-bold text-sm">Profile Settings</span>
+                                    </Link>
+                                    <button 
+                                        onClick={() => { 
+                                            const newTheme = theme === 'dark' ? 'light' : 'dark';
+                                            localStorage.setItem('theme', newTheme);
+                                            window.dispatchEvent(new Event('theme-changed'));
+                                            setShowUserMenu(false); 
+                                        }} 
+                                        className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-indigo-500/10"
+                                    >
+                                        {theme === 'dark' ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-indigo-500" />}
+                                        <span className="font-bold text-sm">Switch to {theme === 'dark' ? 'Light' : 'Dark'}</span>
+                                    </button>
+                                    <div className="h-px bg-white/5 my-1" />
+                                    <button 
+                                        onClick={handleLogout}
+                                        className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-red-500/10 text-red-500"
+                                    >
+                                        <LogOut className="h-5 w-5" />
+                                        <span className="font-bold text-sm">Log Out</span>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+
+                <motion.div 
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className={`relative mx-auto flex max-w-[95vw] items-center justify-between rounded-[2.5rem] border p-1 shadow-2xl backdrop-blur-2xl ${
+                        theme === 'dark' 
+                        ? 'border-white/10 bg-black/60 shadow-black/40' 
+                        : 'border-indigo-100 bg-white/80 shadow-indigo-600/10'
+                    }`}
+                >
+                    {/* Dashboard */}
+                    <Link
+                        href={route('dashboard')}
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 transition-all active:scale-90 ${
+                            theme === 'dark' ? 'text-gray-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <HomeIcon className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Dash</span>
+                    </Link>
+
+                    {/* Editor Menu Toggle */}
+                    <button
+                        onClick={() => { setShowSidebar(!showSidebar); setShowActionMenu(false); setShowUserMenu(false); }}
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 transition-all active:scale-90 ${
+                            showSidebar 
+                            ? (theme === 'dark' ? 'bg-white/5 text-indigo-400' : 'bg-indigo-50 text-indigo-600')
+                            : (theme === 'dark' ? 'text-gray-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                        }`}
+                    >
+                        <Layout className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Editor</span>
+                    </button>
+
+                    {/* Center Action: Magic Action Menu */}
+                    <div className="relative px-1">
+                        <button
+                            onClick={() => { setShowActionMenu(!showActionMenu); setShowUserMenu(false); setShowSidebar(false); }}
+                            className={`flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-xl shadow-indigo-600/40 transition-all active:scale-90 ${showActionMenu ? 'rotate-45' : ''}`}
+                        >
+                            <Zap className={`h-6 w-6 ${showActionMenu ? 'hidden' : 'block'}`} />
+                            <X className={`h-6 w-6 ${showActionMenu ? 'block' : 'hidden'}`} />
+                        </button>
+                    </div>
+
+                    {/* User Menu Toggle */}
+                    <button
+                        onClick={() => { setShowUserMenu(!showUserMenu); setShowActionMenu(false); setShowSidebar(false); }}
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 transition-all active:scale-90 ${
+                            showUserMenu
+                            ? (theme === 'dark' ? 'bg-white/5 text-indigo-400' : 'bg-indigo-50 text-indigo-600')
+                            : (theme === 'dark' ? 'text-gray-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50')
+                        }`}
+                    >
+                        <User className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Account</span>
+                    </button>
+                </motion.div>
+            </div>
+            
         </AuthenticatedLayout>
     );
 }

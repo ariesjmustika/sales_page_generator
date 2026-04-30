@@ -1,9 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { PageProps } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Trash2, Settings } from 'lucide-react';
+import { User, Lock, Trash2, Settings, Home, Sun, Moon } from 'lucide-react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
@@ -14,10 +14,25 @@ export default function Edit({
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
     const [activeTab, setActiveTab] = useState<'general' | 'security' | 'danger'>('general');
     const [theme, setTheme] = useState('dark');
+    const [showUserMenu, setShowUserMenu] = useState(false);
 
     useEffect(() => {
-        setTheme(localStorage.getItem('theme') || 'dark');
+        const handleThemeChange = () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+        };
+        handleThemeChange();
+        window.addEventListener('theme-changed', handleThemeChange);
+        return () => window.removeEventListener('theme-changed', handleThemeChange);
     }, []);
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [theme]);
 
     const tabs = [
         { id: 'general', label: 'General', icon: User },
@@ -123,6 +138,92 @@ export default function Edit({
                     </div>
                 </div>
             </div>
+
+            {/* Global Bottom Navigation Bar */}
+            <div className="lg:hidden fixed bottom-6 left-0 right-0 z-[100] px-4 no-print">
+                <AnimatePresence>
+                    {/* User Menu Sheet (Right) */}
+                    {showUserMenu && (
+                        <>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowUserMenu(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+                            <motion.div 
+                                initial={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                animate={{ y: 0, opacity: 1, scale: 1 }} 
+                                exit={{ y: 20, opacity: 0, scale: 0.95 }} 
+                                className={`absolute bottom-24 right-4 w-64 rounded-3xl border p-3 shadow-2xl ${
+                                    theme === 'dark' ? 'border-white/10 bg-gray-900 text-white' : 'border-indigo-100 bg-white text-slate-900'
+                                }`}
+                            >
+                                <div className="space-y-1">
+                                    <div className="flex w-full items-center space-x-3 rounded-xl p-3 bg-indigo-500/10 text-indigo-400">
+                                        <User className="h-5 w-5" />
+                                        <span className="font-bold text-sm">Active: Profile</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => { 
+                                            const newTheme = theme === 'dark' ? 'light' : 'dark';
+                                            localStorage.setItem('theme', newTheme);
+                                            window.dispatchEvent(new Event('theme-changed'));
+                                            setShowUserMenu(false); 
+                                        }} 
+                                        className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-indigo-500/10"
+                                    >
+                                        {theme === 'dark' ? <Sun className="h-5 w-5 text-yellow-500" /> : <Moon className="h-5 w-5 text-indigo-500" />}
+                                        <span className="font-bold text-sm">Switch to {theme === 'dark' ? 'Light' : 'Dark'}</span>
+                                    </button>
+                                    <div className="h-px bg-white/5 my-1" />
+                                    <Link method="post" href={route('logout')} as="button" className="flex w-full items-center space-x-3 rounded-xl p-3 transition-all hover:bg-red-500/10 text-red-500">
+                                        <Trash2 className="h-5 w-5" />
+                                        <span className="font-bold text-sm">Log Out</span>
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+
+                <motion.div 
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className={`relative mx-auto flex max-w-md items-center justify-between rounded-[2.5rem] border p-2 shadow-2xl backdrop-blur-2xl ${
+                        theme === 'dark' 
+                        ? 'border-white/10 bg-black/60 shadow-black/40' 
+                        : 'border-indigo-100 bg-white/80 shadow-indigo-600/10'
+                    }`}
+                >
+                    {/* Home */}
+                    <Link
+                        href={route('dashboard')}
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 transition-all active:scale-90 ${
+                            theme === 'dark' ? 'text-gray-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Home className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Home</span>
+                    </Link>
+
+                    {/* Center Action: Settings (Active) */}
+                    <div className="relative px-2">
+                        <div
+                            className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600 text-white shadow-xl shadow-indigo-600/40 transition-all active:scale-90"
+                        >
+                            <Settings className="h-8 w-8 animate-spin-slow" />
+                        </div>
+                    </div>
+
+                    {/* User Menu Toggle */}
+                    <button
+                        onClick={() => setShowUserMenu(!showUserMenu)}
+                        className={`flex flex-1 flex-col items-center justify-center rounded-2xl py-2 transition-all active:scale-90 ${
+                            theme === 'dark' ? 'text-gray-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <User className="h-5 w-5" />
+                        <span className="mt-1 text-[8px] font-bold uppercase tracking-widest">Account</span>
+                    </button>
+                </motion.div>
+            </div>
+
         </AuthenticatedLayout>
     );
 }

@@ -174,11 +174,14 @@ export default function Welcome({
                         <span>Try MarketAI Free</span>
                         <ArrowRight className="h-6 w-6" />
                     </Link>
-                    <button className={`w-full rounded-full border px-12 py-5 text-2xl font-black backdrop-blur-md transition-all sm:w-auto ${
-                        theme === 'dark' ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                    }`}>
+                    <Link 
+                        href={route('login')}
+                        className={`w-full rounded-full border px-12 py-5 text-2xl font-black backdrop-blur-md transition-all text-center sm:w-auto ${
+                            theme === 'dark' ? 'border-white/10 bg-white/5 hover:bg-white/10' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-sm'
+                        }`}
+                    >
                         Live Demo
-                    </button>
+                    </Link>
                 </motion.div>
 
                 {/* Features Matrix */}

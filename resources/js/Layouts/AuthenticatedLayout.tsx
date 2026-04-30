@@ -11,7 +11,8 @@ import { Toaster } from 'sonner';
 export default function Authenticated({
     header,
     children,
-}: PropsWithChildren<{ header?: ReactNode }>) {
+    hideNav = true,
+}: PropsWithChildren<{ header?: ReactNode; hideNav?: boolean }>) {
     const user = usePage().props.auth.user;
 
     const [theme, setTheme] = useState(() => {
@@ -33,7 +34,18 @@ export default function Authenticated({
         const newTheme = theme === 'dark' ? 'light' : 'dark';
         setTheme(newTheme);
         localStorage.setItem('theme', newTheme);
+        window.dispatchEvent(new Event('theme-changed'));
     };
+
+    useEffect(() => {
+        const handleThemeChange = () => {
+            setTheme(localStorage.getItem('theme') || 'dark');
+        };
+        window.addEventListener('theme-changed', handleThemeChange);
+        return () => window.removeEventListener('theme-changed', handleThemeChange);
+    }, []);
+
+
 
     useEffect(() => {
         if (theme === 'dark') {
@@ -253,15 +265,18 @@ export default function Authenticated({
                             </div>
                         </div>
 
-                        <div className="-me-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-white/5 hover:text-white focus:outline-none"
-                            >
+                        {!hideNav && (
+                            <div className="-me-2 flex items-center sm:hidden">
+                                <button
+                                    onClick={() =>
+                                        setShowingNavigationDropdown(
+                                            (previousState) => !previousState,
+                                        )
+                                    }
+                                    className={`inline-flex items-center justify-center rounded-xl p-2 transition-all ${
+                                        theme === 'dark' ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+                                    }`}
+                                >
                                 <svg
                                     className="h-6 w-6"
                                     stroke="currentColor"
@@ -293,12 +308,13 @@ export default function Authenticated({
                                 </svg>
                             </button>
                         </div>
+                        )}
                     </div>
                 </div>
 
                 <div
                     className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
+                        (showingNavigationDropdown && !hideNav ? 'block' : 'hidden') +
                         ` border-t transition-colors duration-500 sm:hidden ${
                             theme === 'dark' 
                             ? 'border-white/5 bg-[#121217]' 
